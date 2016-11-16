@@ -1,0 +1,88 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+    }
+}
+
+repositories {
+    maven { // JEI repo
+        url "http://dvs1.progwml6.com/files/maven"
+	}
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+version = mc_version + '-' + version_major + '.' + version_minor + '.' + version_patch
+group = package_group
+archivesBaseName = mod_id
+
+minecraft {
+    version = "${mc_version}-${forge_version}"
+    runDir = "run"
+    makeObfSourceJar = true
+    useDepAts = true
+
+    if (project.hasProperty('mappings_version'))
+        mappings = project.mappings_version
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jar {
+    classifier = ''
+    manifest.mainAttributes(
+            "Built-By": "${author}",
+            "Implementation-Title": project.name,
+            "Implementation-Version": project.version,
+            "Built-On": "${mc_version}-${forge_version}"
+    )
+}
+
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+task devJar(type: Jar) {
+    classifier = "dev"
+    from sourceSets.main.output
+    manifest {
+        attributes "FMLAT": "thedragoncore_at.cfg"
+        attributes "FMLCorePlugin": "net.thedragonteam.thedragonlib.TheDragonCore"
+        attributes "FMLCorePluginContainsFMLMod": "true"
+    }
+}
+
+artifacts {
+    archives sourcesJar
+    archives devJar
+}
+
+processResources
+{
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+                
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}

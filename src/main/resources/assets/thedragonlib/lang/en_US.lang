@@ -1,0 +1,6 @@
+#en_US.lang File
+
+#CONSOLE LOG -- As part of console output, these entries shall not be translated. --
+info.thedragonlib.console.load.preInit=Begin Pre-initialization
+info.thedragonlib.console.load.init=Begin Initialization
+info.thedragonlib.console.load.postInit=Begin Post-initialization

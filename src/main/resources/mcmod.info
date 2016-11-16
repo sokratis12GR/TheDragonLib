@@ -1,0 +1,19 @@
+[
+  {
+    "modid": "thedragonlib",
+    "name": "TheDragonLib",
+    "description": "A library for all TheDragonTeam's Mods",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "Moritz30",
+      "sokratis12GR"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

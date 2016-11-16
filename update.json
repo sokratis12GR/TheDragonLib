@@ -1,0 +1,17 @@
+{
+  "promos": {
+    "1.10.2-latest": "1.10.2-1.0.3.0",
+    "1.10.2-recommended": "1.10.2-1.0.3.0",
+	"1.11-latest": "1.11-2.0.0",
+    "1.11-recommended": "1.11-2.0.0"
+  },
+  "1.10.2": {
+    "1.0.0": "Created",
+    "1.1.0": "Added GET and POST API",
+    "1.10.2-1.0.2.0": "Changed Version Format <mcversion>-<major>.<api>.<minor>.<patch>",
+    "1.10.2-1.0.3.0": "Changed the description"
+  },
+  "1.11": {
+    "1.11-2.0.0": "Updated to 1"
+  }
+}
