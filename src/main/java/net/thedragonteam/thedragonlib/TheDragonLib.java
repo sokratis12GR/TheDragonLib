@@ -23,7 +23,7 @@ public class TheDragonLib {
     public static final int MINOR = 0;
     // Updates every time a bug is fixed or issue solved or very minor code changes,
     // resets on MINOR changes
-    public static final int PATCH = 0;
+    public static final int PATCH = 1;
     // The TheDragonCore Version
     public static final String VERSION =
             TheDragonLib.MCVERSION + "-" + TheDragonLib.MAJOR + "." + TheDragonLib.MINOR + "." + TheDragonLib.PATCH;

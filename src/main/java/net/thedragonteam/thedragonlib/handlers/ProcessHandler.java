@@ -11,8 +11,8 @@ import java.util.List;
 
 public class ProcessHandler {
 
-    private static List<IProcess> processes = new ArrayList<IProcess>();
-    private static List<IProcess> newProcesses = new ArrayList<IProcess>();
+    private static List<IProcess> processes = new ArrayList<>();
+    private static List<IProcess> newProcesses = new ArrayList<>();
 
     public static void init() {
         MinecraftForge.EVENT_BUS.register(new ProcessHandler());
