@@ -191,7 +191,7 @@ public class GuiHelper {
         if (stack != null) font = stack.getItem().getFontRenderer(stack);
         if (font == null) font = mc.fontRendererObj;
         mc.getRenderItem().renderItemAndEffectIntoGUI(stack, x, y);
-        String count = stack.func_190916_E() > 1 ? String.valueOf(stack.func_190916_E()) : "";
+        String count = stack.getCount() > 1 ? String.valueOf(stack.getCount()) : "";
         mc.getRenderItem().renderItemOverlayIntoGUI(font, stack, x, y, count);
         //this.zLevel = 0.0F;
         mc.getRenderItem().zLevel = 0.0F;
