@@ -25,7 +25,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TileDLBase extends TileEntity {
+public class TileTDLBase extends TileEntity {
 
     private Map<Byte, SyncableObject> syncableObjectMap = new HashMap<>();
     private int objIndexCount = 0;

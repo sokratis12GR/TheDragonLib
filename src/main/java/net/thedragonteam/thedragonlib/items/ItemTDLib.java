@@ -6,11 +6,11 @@ import net.minecraft.item.ItemStack;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ItemDLib extends Item {
+public class ItemTDLib extends Item {
 
     public Map<Integer, String> nameMap = new HashMap<>();
 
-    public ItemDLib addName(int damage, String name) {
+    public ItemTDLib addName(int damage, String name) {
         nameMap.put(damage, name);
         return this;
     }

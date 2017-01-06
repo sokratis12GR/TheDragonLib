@@ -2,7 +2,7 @@ package net.thedragonteam.thedragonlib.wrappers;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.thedragonteam.thedragonlib.blocks.TileDLBase;
+import net.thedragonteam.thedragonlib.blocks.TileTDLBase;
 import net.thedragonteam.thedragonlib.network.PacketSyncableObject;
 
 public abstract class SyncableObject {
@@ -22,7 +22,7 @@ public abstract class SyncableObject {
         this.updateOnReceived = updateOnReceived;
     }
 
-    public abstract void detectAndSendChanges(TileDLBase tile, EntityPlayer player, boolean forceSync);
+    public abstract void detectAndSendChanges(TileTDLBase tile, EntityPlayer player, boolean forceSync);
 
     public abstract void updateReceived(PacketSyncableObject packet);
 

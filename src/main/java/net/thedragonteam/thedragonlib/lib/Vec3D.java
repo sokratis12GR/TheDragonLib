@@ -149,9 +149,8 @@ public class Vec3D {
         if (getClass() != obj.getClass()) return false;
         Vec3D other = (Vec3D) obj;
 
-        if (x == other.x && y == other.y && z == other.z) return true;
+        return x == other.x && y == other.y && z == other.z;
 
-        return false;
     }
 
     @Override

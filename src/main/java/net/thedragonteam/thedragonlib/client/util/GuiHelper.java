@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.thedragonteam.thedragonlib.client.ResourceHelperDL;
-
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
@@ -25,6 +24,7 @@ public class GuiHelper {
         drawTexturedRect(x, y, width, height, u, v, width, height, 0, PXL256);
     }
 
+    @SuppressWarnings("unchecked")
     public static void drawTexturedRect(double x, double y, double width, double height, int u, int v, int uSize, int vSize, double zLevel, double pxl) {
         Tessellator tessellator = Tessellator.getInstance();
         VertexBuffer vertexBuffer = tessellator.getBuffer();
@@ -36,6 +36,7 @@ public class GuiHelper {
         tessellator.draw();
     }
 
+    @SuppressWarnings("unchecked")
     public static void drawHoveringText(List list, int x, int y, FontRenderer font, int guiWidth, int guiHeight) {
         net.minecraftforge.fml.client.config.GuiUtils.drawHoveringText(list, x, y, guiWidth, guiHeight, -1, font);
 

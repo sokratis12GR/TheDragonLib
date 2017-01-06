@@ -2,7 +2,6 @@ package net.thedragonteam.thedragonlib.client.util;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.thedragonteam.thedragonlib.util.LogHelper;
-
 import org.lwjgl.opengl.GL11;
 
 public class GLStateHelper {

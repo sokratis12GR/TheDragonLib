@@ -103,9 +103,8 @@ public class Vec3I {
         if (getClass() != obj.getClass()) return false;
         Vec3I other = (Vec3I) obj;
 
-        if (x == other.x && y == other.y && z == other.z) return true;
+        return x == other.x && y == other.y && z == other.z;
 
-        return false;
     }
 
     @Override

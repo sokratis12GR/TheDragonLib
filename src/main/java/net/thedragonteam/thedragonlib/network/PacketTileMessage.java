@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-import net.thedragonteam.thedragonlib.blocks.TileDLBase;
+import net.thedragonteam.thedragonlib.blocks.TileTDLBase;
 
 public class PacketTileMessage implements IMessage {
     public static final byte BOOLEAN_INDEX = 0;
@@ -33,49 +33,49 @@ public class PacketTileMessage implements IMessage {
     public PacketTileMessage() {
     }
 
-    public PacketTileMessage(TileDLBase tile, byte pktIndex, boolean booleanValue, boolean updateOnReceived) {
+    public PacketTileMessage(TileTDLBase tile, byte pktIndex, boolean booleanValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.pktIndex = pktIndex;
         this.booleanValue = booleanValue;
         this.dataType = BOOLEAN_INDEX;
     }
 
-    public PacketTileMessage(TileDLBase tile, byte pktIndex, byte byteValue, boolean updateOnReceived) {
+    public PacketTileMessage(TileTDLBase tile, byte pktIndex, byte byteValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.pktIndex = pktIndex;
         this.byteValue = byteValue;
         this.dataType = BYTE_INDEX;
     }
 
-    public PacketTileMessage(TileDLBase tile, byte pktIndex, int intValue, boolean updateOnReceived) {
+    public PacketTileMessage(TileTDLBase tile, byte pktIndex, int intValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.pktIndex = pktIndex;
         this.intValue = intValue;
         this.dataType = INT_INDEX;
     }
 
-    public PacketTileMessage(TileDLBase tile, byte pktIndex, double doubleValue, boolean updateOnReceived) {
+    public PacketTileMessage(TileTDLBase tile, byte pktIndex, double doubleValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.pktIndex = pktIndex;
         this.doubleValue = doubleValue;
         this.dataType = DOUBLE_INDEX;
     }
 
-    public PacketTileMessage(TileDLBase tile, byte pktIndex, float floatValue, boolean updateOnReceived) {
+    public PacketTileMessage(TileTDLBase tile, byte pktIndex, float floatValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.pktIndex = pktIndex;
         this.floatValue = floatValue;
         this.dataType = FLOAT_INDEX;
     }
 
-    public PacketTileMessage(TileDLBase tile, byte pktIndex, String stringValue, boolean updateOnReceived) {
+    public PacketTileMessage(TileTDLBase tile, byte pktIndex, String stringValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.pktIndex = pktIndex;
         this.stringValue = stringValue;
         this.dataType = STRING_INDEX;
     }
 
-    public PacketTileMessage(TileDLBase tile, byte pktIndex, NBTTagCompound compound, boolean updateOnReceived) {
+    public PacketTileMessage(TileTDLBase tile, byte pktIndex, NBTTagCompound compound, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.pktIndex = pktIndex;
         this.compound = compound;
@@ -190,12 +190,12 @@ public class PacketTileMessage implements IMessage {
         @Override
         public IMessage handleMessage(PacketTileMessage message, MessageContext ctx) {
             if (ctx.side == Side.SERVER) {
-                PacketSyncObject syncPacket = new PacketSyncObject<PacketTileMessage, IMessage>(message, ctx) {
+                PacketSyncObject syncPacket = new PacketSyncObject<>(message, ctx) {
                     @Override
                     public void run() {
                         TileEntity tile = ctx.getServerHandler().playerEntity.world.getTileEntity(message.tilePos);
-                        if (tile instanceof TileDLBase) {
-                            ((TileDLBase) tile).receivePacketFromClient(message, ctx.getServerHandler().playerEntity);
+                        if (tile instanceof TileTDLBase) {
+                            ((TileTDLBase) tile).receivePacketFromClient(message, ctx.getServerHandler().playerEntity);
                         }
                     }
                 };

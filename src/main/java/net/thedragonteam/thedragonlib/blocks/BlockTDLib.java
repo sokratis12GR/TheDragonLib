@@ -17,15 +17,15 @@ import net.minecraft.world.World;
 import net.thedragonteam.thedragonlib.api.IDataRetainerTile;
 import net.thedragonteam.thedragonlib.util.ItemNBTHelper;
 
-public class BlockDLib extends Block {
+public class BlockTDLib extends Block {
     public static final String TILE_DATA_TAG = "SMTileData";
     protected boolean isFullCube = true;
 
-    public BlockDLib() {
+    public BlockTDLib() {
         this(Material.ROCK);
     }
 
-    public BlockDLib(Material material) {
+    public BlockTDLib(Material material) {
         super(material);
         this.setHardness(5F);
         this.setResistance(10F);
@@ -43,14 +43,14 @@ public class BlockDLib extends Block {
 
         TileEntity tile = world.getTileEntity(pos);
 
-        if (tile instanceof IDataRetainerTile && ItemNBTHelper.getCompound(stack).hasKey(BlockDLib.TILE_DATA_TAG)) {
-            ((IDataRetainerTile) tile).readDataFromNBT(ItemNBTHelper.getCompound(stack).getCompoundTag(BlockDLib.TILE_DATA_TAG));
+        if (tile instanceof IDataRetainerTile && ItemNBTHelper.getCompound(stack).hasKey(BlockTDLib.TILE_DATA_TAG)) {
+            ((IDataRetainerTile) tile).readDataFromNBT(ItemNBTHelper.getCompound(stack).getCompoundTag(BlockTDLib.TILE_DATA_TAG));
         }
     }
     //endregion
 
     //region Setters & Getters
-    public BlockDLib setHarvestTool(String toolClass, int level) {
+    public BlockTDLib setHarvestTool(String toolClass, int level) {
         this.setHarvestLevel(toolClass, level);
         return this;
     }
@@ -74,7 +74,7 @@ public class BlockDLib extends Block {
         return stack;
     }
 
-    public BlockDLib setIsFullCube(boolean value) {
+    public BlockTDLib setIsFullCube(boolean value) {
         isFullCube = value;
         return this;
     }

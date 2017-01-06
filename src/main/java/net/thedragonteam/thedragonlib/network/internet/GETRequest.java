@@ -8,9 +8,9 @@ import java.net.URL;
 
 public class GETRequest {
 	
-	public String target = new String();
-	public String params = new String();
-	public String useragent = new String();
+	public String target = "";
+	public String params = "";
+	public String useragent = "";
 	
 	public GETRequest(){
 		
@@ -23,8 +23,8 @@ public class GETRequest {
 	public GETRequest(String tar){
 		
 		target = tar;
-		params = new String();
-		useragent = "TheDragonCore";
+		params = "";
+		useragent = "TheDragonLib";
 		
 	}
 	
@@ -32,7 +32,7 @@ public class GETRequest {
 		
 		target = tar;
 		params = par;
-		useragent = "TheDragonCore";
+		useragent = "TheDragonLib";
 		
 	}
 	

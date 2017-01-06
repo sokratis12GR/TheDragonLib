@@ -9,9 +9,9 @@ import java.net.URL;
 
 public class POSTRequest {
 	
-	public String target = new String();
-	public String params = new String();
-	public String useragent = new String();
+	public String target = "";
+	public String params = "";
+	public String useragent = "";
 	
 	public POSTRequest(){
 		
@@ -24,7 +24,7 @@ public class POSTRequest {
 	public POSTRequest(String tar){
 		
 		target = tar;
-		params = new String();
+		params = "";
 		useragent = "TheDragonCore";
 		
 	}

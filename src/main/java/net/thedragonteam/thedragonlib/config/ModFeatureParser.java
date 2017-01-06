@@ -10,7 +10,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.thedragonteam.thedragonlib.blocks.ItemBlockDLib;
+import net.thedragonteam.thedragonlib.blocks.ItemBlockTDLib;
 import net.thedragonteam.thedragonlib.util.LogHelper;
 
 import java.lang.reflect.Constructor;
@@ -104,7 +104,7 @@ public class ModFeatureParser {
                     block.setCreativeTab(modTabs[entry.feature.cTab()]);
                 }
 
-                if (ItemBlockDLib.class.isAssignableFrom(entry.feature.itemBlock())) {
+                if (ItemBlockTDLib.class.isAssignableFrom(entry.feature.itemBlock())) {
                     GameRegistry.register(block);
 
                     try {

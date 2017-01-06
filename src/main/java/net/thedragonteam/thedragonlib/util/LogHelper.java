@@ -1,10 +1,9 @@
 package net.thedragonteam.thedragonlib.util;
 
+import net.thedragonteam.thedragonlib.TheDragonLib;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import net.thedragonteam.thedragonlib.TheDragonLib;
 
 import java.util.Random;
 
@@ -244,7 +243,7 @@ public class LogHelper {
         error(comment[new Random(System.nanoTime()).nextInt(comment.length)]);
         error("*************************************************************************************");
         error("It looks like a fatal error occurred which has caused the game to crash... [%s]", error);
-        error("Please go here for assistance: https://github.com/sokratis12GR/SokratisCore/issues");
+        error("Please go here for assistance: https://github.com/TheDragonTeam/TheDragonLib/issues");
         error("*************************************************************************************");
     }
 }

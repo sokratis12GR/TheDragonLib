@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.thedragonteam.thedragonlib.TheDragonLib;
-import net.thedragonteam.thedragonlib.blocks.TileDLBase;
+import net.thedragonteam.thedragonlib.blocks.TileTDLBase;
 import net.thedragonteam.thedragonlib.network.PacketSyncableObject;
 import net.thedragonteam.thedragonlib.util.LogHelper;
 
@@ -24,7 +24,7 @@ public class SyncableByte extends SyncableObject {
     }
 
     @Override
-    public void detectAndSendChanges(TileDLBase tile, EntityPlayer player, boolean forceSync) {
+    public void detectAndSendChanges(TileTDLBase tile, EntityPlayer player, boolean forceSync) {
         if (lastTickValue != value || forceSync) {
             lastTickValue = value;
 

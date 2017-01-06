@@ -6,7 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.thedragonteam.thedragonlib.TheDragonLib;
-import net.thedragonteam.thedragonlib.blocks.TileDLBase;
+import net.thedragonteam.thedragonlib.blocks.TileTDLBase;
 import net.thedragonteam.thedragonlib.lib.Vec3I;
 import net.thedragonteam.thedragonlib.network.PacketSyncableObject;
 import net.thedragonteam.thedragonlib.util.LogHelper;
@@ -30,7 +30,7 @@ public class SyncableVec3I extends SyncableObject {
     }
 
     @Override
-    public void detectAndSendChanges(TileDLBase tile, EntityPlayer player, boolean forceSync) {
+    public void detectAndSendChanges(TileTDLBase tile, EntityPlayer player, boolean forceSync) {
         if (!vec.equals(lastTickVec) || forceSync) {
             lastTickVec = vec.copy();
             tile.dirtyBlock();

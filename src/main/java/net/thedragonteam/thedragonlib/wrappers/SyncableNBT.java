@@ -2,7 +2,7 @@ package net.thedragonteam.thedragonlib.wrappers;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.thedragonteam.thedragonlib.blocks.TileDLBase;
+import net.thedragonteam.thedragonlib.blocks.TileTDLBase;
 import net.thedragonteam.thedragonlib.network.PacketSyncableObject;
 
 public class SyncableNBT extends SyncableObject {
@@ -16,7 +16,7 @@ public class SyncableNBT extends SyncableObject {
     }
 
     @Override
-    public void detectAndSendChanges(TileDLBase tile, EntityPlayer player, boolean forceSync) {
+    public void detectAndSendChanges(TileTDLBase tile, EntityPlayer player, boolean forceSync) {
         //If i implement this be sure to check each tag and only sent tags that have changed.
 //		if (!lastTickValue.equals(value)) {
 //			lastTickValue = value;

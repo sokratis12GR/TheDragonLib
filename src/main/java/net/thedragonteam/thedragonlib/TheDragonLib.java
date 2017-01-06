@@ -14,16 +14,16 @@ import net.thedragonteam.thedragonlib.util.LogHelper;
 
 @Mod(modid = TheDragonLib.MODID, name = TheDragonLib.MODNAME, version = TheDragonLib.VERSION, updateJSON = TheDragonLib.UPDATE_JSON)
 public class TheDragonLib {
-    public static final String MCVERSION = "1.11";
+    public static final String MCVERSION = "1.11.2";
     // Updates every MAJOR change,
     // never resets
     public static final int MAJOR = 2;
     // Updates every time a new block, item or features is added or change,
     // resets on MAJOR changes
-    public static final int MINOR = 0;
+    public static final int MINOR = 1;
     // Updates every time a bug is fixed or issue solved or very minor code changes,
     // resets on MINOR changes
-    public static final int PATCH = 1;
+    public static final int PATCH = 0;
     // The TheDragonCore Version
     public static final String VERSION =
             TheDragonLib.MCVERSION + "-" + TheDragonLib.MAJOR + "." + TheDragonLib.MINOR + "." + TheDragonLib.PATCH;

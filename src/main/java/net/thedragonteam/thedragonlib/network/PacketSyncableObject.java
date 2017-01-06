@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-import net.thedragonteam.thedragonlib.blocks.TileDLBase;
+import net.thedragonteam.thedragonlib.blocks.TileTDLBase;
 import net.thedragonteam.thedragonlib.lib.Vec3I;
 
 public class PacketSyncableObject implements IMessage {
@@ -43,70 +43,70 @@ public class PacketSyncableObject implements IMessage {
     public PacketSyncableObject() {
     }
 
-    public PacketSyncableObject(TileDLBase tile, byte syncableIndex, boolean booleanValue, boolean updateOnReceived) {
+    public PacketSyncableObject(TileTDLBase tile, byte syncableIndex, boolean booleanValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.index = syncableIndex;
         this.booleanValue = booleanValue;
         this.dataType = BOOLEAN_INDEX;
     }
 
-    public PacketSyncableObject(TileDLBase tile, byte syncableIndex, byte byteValue, boolean updateOnReceived) {
+    public PacketSyncableObject(TileTDLBase tile, byte syncableIndex, byte byteValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.index = syncableIndex;
         this.byteValue = byteValue;
         this.dataType = BYTE_INDEX;
     }
 
-    public PacketSyncableObject(TileDLBase tile, byte syncableIndex, short shortValue, boolean updateOnReceived) {
+    public PacketSyncableObject(TileTDLBase tile, byte syncableIndex, short shortValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.index = syncableIndex;
         this.shortValue = shortValue;
         this.dataType = SHORT_INDEX;
     }
 
-    public PacketSyncableObject(TileDLBase tile, byte syncableIndex, int intValue, boolean updateOnReceived) {
+    public PacketSyncableObject(TileTDLBase tile, byte syncableIndex, int intValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.index = syncableIndex;
         this.intValue = intValue;
         this.dataType = INT_INDEX;
     }
 
-    public PacketSyncableObject(TileDLBase tile, byte syncableIndex, double doubleValue, boolean updateOnReceived) {
+    public PacketSyncableObject(TileTDLBase tile, byte syncableIndex, double doubleValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.index = syncableIndex;
         this.doubleValue = doubleValue;
         this.dataType = DOUBLE_INDEX;
     }
 
-    public PacketSyncableObject(TileDLBase tile, byte syncableIndex, float floatValue, boolean updateOnReceived) {
+    public PacketSyncableObject(TileTDLBase tile, byte syncableIndex, float floatValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.index = syncableIndex;
         this.floatValue = floatValue;
         this.dataType = FLOAT_INDEX;
     }
 
-    public PacketSyncableObject(TileDLBase tile, byte syncableIndex, String stringValue, boolean updateOnReceived) {
+    public PacketSyncableObject(TileTDLBase tile, byte syncableIndex, String stringValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.index = syncableIndex;
         this.stringValue = stringValue;
         this.dataType = STRING_INDEX;
     }
 
-    public PacketSyncableObject(TileDLBase tile, byte syncableIndex, NBTTagCompound compound, boolean updateOnReceived) {
+    public PacketSyncableObject(TileTDLBase tile, byte syncableIndex, NBTTagCompound compound, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.index = syncableIndex;
         this.compound = compound;
         this.dataType = TAG_INDEX;
     }
 
-    public PacketSyncableObject(TileDLBase tile, byte syncableIndex, Vec3I vec3I, boolean updateOnReceived) {
+    public PacketSyncableObject(TileTDLBase tile, byte syncableIndex, Vec3I vec3I, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.index = syncableIndex;
         this.vec3I = vec3I;
         this.dataType = VEC3I_INDEX;
     }
 
-    public PacketSyncableObject(TileDLBase tile, byte syncableIndex, long longValue, boolean updateOnReceived) {
+    public PacketSyncableObject(TileTDLBase tile, byte syncableIndex, long longValue, boolean updateOnReceived) {
         this.tilePos = tile.getPos();
         this.index = syncableIndex;
         this.longValue = longValue;
@@ -213,8 +213,8 @@ public class PacketSyncableObject implements IMessage {
         public IMessage handleMessage(PacketSyncableObject message, MessageContext ctx) {
             if (ctx.side == Side.CLIENT) {
                 TileEntity tile = FMLClientHandler.instance().getWorldClient().getTileEntity(message.tilePos);
-                if (tile instanceof TileDLBase) {
-                    ((TileDLBase) tile).receiveSyncPacketFromServer(message);
+                if (tile instanceof TileTDLBase) {
+                    ((TileTDLBase) tile).receiveSyncPacketFromServer(message);
                 }
             }
             return null;

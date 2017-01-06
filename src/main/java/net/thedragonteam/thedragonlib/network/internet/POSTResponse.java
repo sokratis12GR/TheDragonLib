@@ -3,10 +3,10 @@ package net.thedragonteam.thedragonlib.network.internet;
 public class POSTResponse {
 
 	public int statuscode = 200;
-	public String result = new String();
-	public String target = new String();
-	public String params = new String();
-	public String useragent = new String();
+	public String result = "";
+	public String target = "";
+	public String params = "";
+	public String useragent = "";
 	
 	public POSTResponse(int code){
 		

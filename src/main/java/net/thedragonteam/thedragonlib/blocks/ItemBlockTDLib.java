@@ -11,13 +11,13 @@ import net.thedragonteam.thedragonlib.config.FeatureWrapper;
 
 import java.util.List;
 
-public class ItemBlockDLib extends ItemBlock {
+public class ItemBlockTDLib extends ItemBlock {
 
-    public ItemBlockDLib(Block block, FeatureWrapper feature) {
+    public ItemBlockTDLib(Block block, FeatureWrapper feature) {
         super(block);
     }
 
-    public ItemBlockDLib(Block block) {
+    public ItemBlockTDLib(Block block) {
         super(block);
     }
 
@@ -25,8 +25,8 @@ public class ItemBlockDLib extends ItemBlock {
     @Override
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, playerIn, tooltip, advanced);
-        if (stack.hasTagCompound() && stack.getTagCompound().hasKey(BlockDLib.TILE_DATA_TAG)) {
-            tooltip.add(I18n.format("info.de.hasSavedData.txt"));
+        if (stack.hasTagCompound() && stack.getTagCompound().hasKey(BlockTDLib.TILE_DATA_TAG)) {
+            tooltip.add(I18n.format("info.tdl.has_saved_data.txt"));
         }
     }
 }

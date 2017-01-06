@@ -4,7 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.thedragonteam.thedragonlib.config.FeatureWrapper;
 
-public class ItemBlockBasic extends ItemBlockDLib {
+public class ItemBlockBasic extends ItemBlockTDLib {
 
     private FeatureWrapper feature;
 
