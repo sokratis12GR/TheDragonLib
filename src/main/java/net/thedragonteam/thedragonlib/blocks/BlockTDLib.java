@@ -17,6 +17,8 @@ import net.minecraft.world.World;
 import net.thedragonteam.thedragonlib.api.IDataRetainerTile;
 import net.thedragonteam.thedragonlib.util.ItemNBTHelper;
 
+import javax.annotation.Nonnull;
+
 public class BlockTDLib extends Block {
     public static final String TILE_DATA_TAG = "SMTileData";
     protected boolean isFullCube = true;
@@ -33,7 +35,7 @@ public class BlockTDLib extends Block {
 
     //region Rename field names
     @Override
-    public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list) {
+    public void getSubBlocks(@Nonnull Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list) {
         super.getSubBlocks(itemIn, tab, list);
     }
 
@@ -55,8 +57,9 @@ public class BlockTDLib extends Block {
         return this;
     }
 
+    @Nonnull
     @Override
-    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+    public ItemStack getPickBlock(@Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player) {
         ItemStack stack = super.getPickBlock(state, target, world, pos, player);
 
         if (stack.getItem() == Item.getItemFromBlock(this) && stack.getItem().getHasSubtypes()) {
@@ -82,7 +85,7 @@ public class BlockTDLib extends Block {
     //endregion
 
     @Override
-    public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack heldStack) {
+    public void harvestBlock(@Nonnull World world, EntityPlayer player, @Nonnull BlockPos pos, @Nonnull IBlockState state, TileEntity te, ItemStack heldStack) {
         if (te instanceof IDataRetainerTile) {
             ItemStack stack = new ItemStack(Item.getItemFromBlock(state.getBlock()));
             NBTTagCompound customData = new NBTTagCompound();
@@ -95,11 +98,13 @@ public class BlockTDLib extends Block {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean isFullCube(IBlockState state) {
         return isFullCube;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean isOpaqueCube(IBlockState state) {
         return isFullCube;

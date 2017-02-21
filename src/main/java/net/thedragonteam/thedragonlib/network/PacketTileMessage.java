@@ -7,7 +7,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
 import net.thedragonteam.thedragonlib.blocks.TileTDLBase;
 
 public class PacketTileMessage implements IMessage {
@@ -189,18 +188,20 @@ public class PacketTileMessage implements IMessage {
 
         @Override
         public IMessage handleMessage(PacketTileMessage message, MessageContext ctx) {
-            if (ctx.side == Side.SERVER) {
-                PacketSyncObject syncPacket = new PacketSyncObject<PacketTileMessage, IMessage>(message, ctx) {
-                    @Override
-                    public void run() {
-                        TileEntity tile = ctx.getServerHandler().playerEntity.world.getTileEntity(message.tilePos);
-                        if (tile instanceof TileTDLBase) {
-                            ((TileTDLBase) tile).receivePacketFromClient(message, ctx.getServerHandler().playerEntity);
+            switch (ctx.side) {
+                case SERVER:
+                    PacketSyncObject syncPacket = new PacketSyncObject<PacketTileMessage, IMessage>(message, ctx) {
+                        @Override
+                        public void run() {
+                            TileEntity tile = ctx.getServerHandler().player.world.getTileEntity(message.tilePos);
+                            if (tile instanceof TileTDLBase) {
+                                ((TileTDLBase) tile).receivePacketFromClient(message, ctx.getServerHandler().player);
+                            }
                         }
-                    }
-                };
+                    };
 
-                syncPacket.addPacketServer();
+                    syncPacket.addPacketServer();
+                    break;
             }
             return null;
         }

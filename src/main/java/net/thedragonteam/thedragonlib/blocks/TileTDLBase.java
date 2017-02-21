@@ -20,6 +20,7 @@ import net.thedragonteam.thedragonlib.network.PacketTileMessage;
 import net.thedragonteam.thedragonlib.util.LogHelper;
 import net.thedragonteam.thedragonlib.wrappers.SyncableObject;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -56,9 +57,7 @@ public class TileTDLBase extends TileEntity {
     }
 
     public void registerSyncableObject(SyncableObject object, boolean saveToNBT) {
-        if (objIndexCount > Byte.MAX_VALUE) {
-            throw new RuntimeException("TileDCBase#registerSyncableObject To many objects registered!");
-        }
+        assert objIndexCount <= Byte.MAX_VALUE : "TileDCBase#registerSyncableObject To many objects registered!";
         syncableObjectMap.put((byte) objIndexCount, object.setIndex(objIndexCount));
         if (saveToNBT) {
             object.setSaved();
@@ -109,6 +108,7 @@ public class TileTDLBase extends TileEntity {
         return new SPacketUpdateTileEntity(this.pos, 0, nbttagcompound);
     }
 
+    @Nonnull
     @Override
     public NBTTagCompound getUpdateTag() {
         NBTTagCompound compound = super.getUpdateTag();
@@ -129,7 +129,7 @@ public class TileTDLBase extends TileEntity {
     }
 
     @Override
-    public void handleUpdateTag(NBTTagCompound tag) {
+    public void handleUpdateTag(@Nonnull NBTTagCompound tag) {
         super.handleUpdateTag(tag);//todo?
     }
 
@@ -195,6 +195,7 @@ public class TileTDLBase extends TileEntity {
     public void readExtraNBT(NBTTagCompound compound) {
     }
 
+    @Nonnull
     @Override
     public final NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
@@ -230,7 +231,7 @@ public class TileTDLBase extends TileEntity {
     }
 
     @Override
-    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate) {
+    public boolean shouldRefresh(World world, BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newSate) {
         return shouldRefreshOnState ? oldState != newSate : (oldState.getBlock() != newSate.getBlock());
     }
 }

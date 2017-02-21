@@ -16,7 +16,7 @@ public class TESRBase<T extends TileEntity> extends TileEntitySpecialRenderer<T>
     }
 
     public void renderItem(ItemStack stack) {
-        if (stack != null) {
+        if (!stack.isEmpty()) {
             //RenderHelper.enableStandardItemLighting();
             //GlStateManager.enableLighting();
             Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.FIXED);

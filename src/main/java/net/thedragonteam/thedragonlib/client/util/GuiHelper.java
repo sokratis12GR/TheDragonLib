@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.thedragonteam.thedragonlib.client.ResourceHelperDL;
 import org.lwjgl.opengl.GL11;
 
@@ -38,8 +39,7 @@ public class GuiHelper {
 
     @SuppressWarnings("unchecked")
     public static void drawHoveringText(List list, int x, int y, FontRenderer font, int guiWidth, int guiHeight) {
-        net.minecraftforge.fml.client.config.GuiUtils.drawHoveringText(list, x, y, guiWidth, guiHeight, -1, font);
-
+        GuiUtils.drawHoveringText(list, x, y, guiWidth, guiHeight, -1, font);
     }
 
     public static void drawHoveringTextScaled(List list, int mouseX, int mouseY, FontRenderer font, float fade, double scale, int guiWidth, int guiHeight) {
@@ -188,9 +188,9 @@ public class GuiHelper {
         GlStateManager.translate(0.0F, 0.0F, 32.0F);
         //this.zLevel = 200.0F;
         mc.getRenderItem().zLevel = 200.0F;
-        net.minecraft.client.gui.FontRenderer font = null;
-        if (stack != null) font = stack.getItem().getFontRenderer(stack);
-        if (font == null) font = mc.fontRendererObj;
+        FontRenderer font = null;
+        if (!stack.isEmpty()) font = stack.getItem().getFontRenderer(stack);
+        if (font == null) font = mc.fontRenderer;
         mc.getRenderItem().renderItemAndEffectIntoGUI(stack, x, y);
         String count = stack.getCount() > 1 ? String.valueOf(stack.getCount()) : "";
         mc.getRenderItem().renderItemOverlayIntoGUI(font, stack, x, y, count);
@@ -199,7 +199,7 @@ public class GuiHelper {
     }
 
     public static void drawStack(ItemStack stack, Minecraft mc, int x, int y, float scale) {
-        if (stack == null) {
+        if (stack.isEmpty()) {
             return;
         }
         GlStateManager.pushMatrix();

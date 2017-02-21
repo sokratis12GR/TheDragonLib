@@ -17,7 +17,7 @@ import java.awt.*;
 
 public class GuiUtils extends GuiScreen {
     private Minecraft mc = Minecraft.getMinecraft();
-    private FontRenderer fontRenderer = mc.fontRendererObj;
+    private FontRenderer fontRenderer = mc.fontRenderer;
 
     /**
      * Draws a slot that is disabled...

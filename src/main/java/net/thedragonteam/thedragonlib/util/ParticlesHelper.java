@@ -69,6 +69,6 @@ public class ParticlesHelper {
     public enum Pos {
         POS_X,
         POS_Y,
-        POS_Z
+        POS_Z,;
     }
 }

@@ -2,19 +2,22 @@ package net.thedragonteam.thedragonlib.util;
 //General place to call text formatting from. You can alternatively use 'EnumChatFormatting'.
 
 
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@SideOnly(Side.CLIENT)
 public class TextHelper {
     public static String getFormattedText(String string) {
         return string.replaceAll("&", "\u00A7");
     }
 
     public static String localize(String input, Object... format) {
-        return I18n.translateToLocalFormatted(input, format);
+        return I18n.format(input, format);
     }
 
     public static String localizeEffect(String input, Object... format) {

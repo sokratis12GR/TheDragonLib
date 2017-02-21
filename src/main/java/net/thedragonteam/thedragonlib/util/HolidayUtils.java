@@ -10,11 +10,6 @@ public class HolidayUtils {
 
     public boolean isChristmas() {
         Calendar calendar = Calendar.getInstance();
-        if (calendar.get(Calendar.MONTH) == Calendar.DECEMBER) {
-            if (calendar.get(Calendar.DAY_OF_MONTH) > 22 && calendar.get(Calendar.DAY_OF_MONTH) > 29) {
-                return true;
-            }
-        }
-        return false;
+        return calendar.get(Calendar.MONTH) == Calendar.DECEMBER && calendar.get(Calendar.DAY_OF_MONTH) > 22 && calendar.get(Calendar.DAY_OF_MONTH) > 29;
     }
 }

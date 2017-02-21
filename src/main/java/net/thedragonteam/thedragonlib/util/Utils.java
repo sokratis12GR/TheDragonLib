@@ -25,8 +25,7 @@ public class Utils {
         else if (value < 1000000000000000L) return String.valueOf(Math.round(value / 1000000000L) / 1000D) + "T";
         else if (value < 1000000000000000000L)
             return String.valueOf(Math.round(value / 1000000000000L) / 1000D) + "Quad";
-        else if (value <= Long.MAX_VALUE) return String.valueOf(Math.round(value / 1000000000000000L) / 1000D) + "Quin";
-        else return "Something is very broken!!!!";
+        else return String.valueOf(Math.round(value / 1000000000000000L) / 1000D) + "Quin";
     }
 
     /**

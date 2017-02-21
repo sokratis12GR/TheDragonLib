@@ -1,6 +1,11 @@
 #en_US.lang File
 
-#CONSOLE LOG -- As part of console output, these entries shall not be translated. --
-info.thedragonlib.console.load.preInit=Begin Pre-initialization
-info.thedragonlib.console.load.init=Begin Initialization
-info.thedragonlib.console.load.postInit=Begin Post-initialization
+#Achievements
+achievement.thedragonlib.thedragonlib=TheDragonLib
+achievement.thedragonlib.thedragonlib.desc=Have TheDragonLib installed
+achievement.thedragonlib.armorplus=ArmorPlus
+achievement.thedragonlib.armorplus.desc=Have ArmorPlus installed
+achievement.thedragonlib.mobsettings=Mob Settings
+achievement.thedragonlib.mobsettings.desc=Have Mob Settings installed
+achievement.thedragonlib.usefulrecipes=Useful Recipes
+achievement.thedragonlib.usefulrecipes.desc=Have Useful Recipes installed

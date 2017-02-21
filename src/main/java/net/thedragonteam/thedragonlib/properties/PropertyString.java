@@ -6,6 +6,7 @@ import net.minecraft.block.properties.PropertyHelper;
 import net.thedragonteam.thedragonlib.util.ArrayUtils;
 import net.thedragonteam.thedragonlib.util.LogHelper;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,21 +22,21 @@ public class PropertyString extends PropertyHelper<String> {
         Collections.addAll(valuesSet, ArrayUtils.arrayToLowercase(values));
     }
 
+    @Nonnull
     @Override
     public Collection<String> getAllowedValues() {
         return ImmutableSet.copyOf(valuesSet);
     }
 
+    @Nonnull
     @Override
-    public Optional<String> parseValue(String value) {
-        if (valuesSet.contains(value)) {
-            return Optional.of(value);
-        }
-        return Optional.absent();
+    public Optional<String> parseValue(@Nonnull String value) {
+        return valuesSet.contains(value) ? Optional.of(value) : Optional.absent();
     }
 
+    @Nonnull
     @Override
-    public String getName(String value) {
+    public String getName(@Nonnull String value) {
         return value;
     }
 

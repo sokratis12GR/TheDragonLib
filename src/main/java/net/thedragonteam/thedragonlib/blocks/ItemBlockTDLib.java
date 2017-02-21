@@ -9,6 +9,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.thedragonteam.thedragonlib.config.FeatureWrapper;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class ItemBlockTDLib extends ItemBlock {
@@ -23,7 +24,7 @@ public class ItemBlockTDLib extends ItemBlock {
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
+    public void addInformation(@Nonnull ItemStack stack, @Nonnull EntityPlayer playerIn, @Nonnull List<String> tooltip, boolean advanced) {
         super.addInformation(stack, playerIn, tooltip, advanced);
         if (stack.hasTagCompound() && stack.getTagCompound().hasKey(BlockTDLib.TILE_DATA_TAG)) {
             tooltip.add(I18n.format("info.tdl.has_saved_data.txt"));

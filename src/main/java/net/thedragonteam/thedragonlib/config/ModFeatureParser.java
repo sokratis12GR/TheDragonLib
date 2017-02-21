@@ -206,12 +206,7 @@ public class ModFeatureParser {
      * Returns true if feature is enabled. Applies to all mods using a ModFeatureParser instance
      * */
     public static boolean isEnabled(Object feature) {
-        if (!featureStates.containsKey(feature)) {
-            return false;
-        }
-        else {
-            return featureStates.get(feature);
-        }
+        return !featureStates.containsKey(feature) ? false : featureStates.get(feature);
     }
 
     private static class FeatureEntry {

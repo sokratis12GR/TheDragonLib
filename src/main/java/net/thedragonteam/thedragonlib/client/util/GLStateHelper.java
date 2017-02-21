@@ -22,15 +22,21 @@ public class GLStateHelper {
     }
 
     public static void popBlend() {
-        if (lastBlendState == -1) {
-            LogHelper.bigError("[GLStateHelper] Attempt to pop before pushing");
-        } else {
-            if (lastBlendState == 1) {
-                GlStateManager.enableBlend();
-            } else {
-                GlStateManager.disableBlend();
-            }
-            lastBlendState = -1;
+        switch (lastBlendState) {
+            case -1:
+                LogHelper.bigError("[GLStateHelper] Attempt to pop before pushing");
+                break;
+            default:
+                switch (lastBlendState) {
+                    case 1:
+                        GlStateManager.enableBlend();
+                        break;
+                    default:
+                        GlStateManager.disableBlend();
+                        break;
+                }
+                lastBlendState = -1;
+                break;
         }
     }
 

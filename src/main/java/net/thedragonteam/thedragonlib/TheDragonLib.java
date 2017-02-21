@@ -21,13 +21,13 @@ public class TheDragonLib {
     public static final String MCVERSION = "1.11.2";
     // Updates every MAJOR change,
     // never resets
-    public static final int MAJOR = 3;
+    public static final int MAJOR = 2;
     // Updates every time a new block, item or features is added or change,
     // resets on MAJOR changes
-    public static final int MINOR = 0;
+    public static final int MINOR = 2;
     // Updates every time a bug is fixed or issue solved or very minor code changes,
     // resets on MINOR changes
-    public static final int PATCH = 0;
+    public static final int PATCH = 3;
     // The TheDragonCore Version
     public static final String VERSION =
             TheDragonLib.MCVERSION + "-" + TheDragonLib.MAJOR + "." + TheDragonLib.MINOR + "." + TheDragonLib.PATCH;
@@ -46,12 +46,12 @@ public class TheDragonLib {
     public static SimpleNetworkWrapper network;
 
     public TheDragonLib() {
-        LogHelper.INSTANCE.info("Welcoming Minecraft");
+        LogHelper.info("Welcoming Minecraft");
     }
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        FileHandler.INSTANCE.init(event);
+        FileHandler.init(event);
         registerNetwork();
         proxy.preInit(event);
     }

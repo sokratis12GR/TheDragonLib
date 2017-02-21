@@ -24,20 +24,22 @@ public class ProcessHandler {
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
+        switch (event.phase) {
+            case START:
 
-            Iterator<IProcess> i = processes.iterator();
+                Iterator<IProcess> i = processes.iterator();
 
-            while (i.hasNext()) {
-                IProcess process = i.next();
-                if (process.isDead()) i.remove();
-                else process.updateProcess();
-            }
+                while (i.hasNext()) {
+                    IProcess process = i.next();
+                    if (process.isDead()) i.remove();
+                    else process.updateProcess();
+                }
 
-            if (!newProcesses.isEmpty()) {
-                processes.addAll(newProcesses);
-                newProcesses.clear();
-            }
+                if (!newProcesses.isEmpty()) {
+                    processes.addAll(newProcesses);
+                    newProcesses.clear();
+                }
+                break;
         }
     }
 

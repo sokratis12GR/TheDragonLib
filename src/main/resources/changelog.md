@@ -1,9 +1,3 @@
-**1.11.2-3.0.0:**
-
-Major Update:
-
-* Rewritten in **Kotlin**
-
 **1.11.2-2.2.3:**
 
 Quick Fix:

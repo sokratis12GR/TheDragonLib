@@ -67,10 +67,7 @@ public class ModConfigProcessor {
      * @return The config property if it exists or null if it could not be found.
      */
     public Property findProperty(String category, String name) {
-        if (config.getCategory(category) != null) {
-            return config.getCategory(category).get(name);
-        }
-        return null;
+        return config.getCategory(category) != null ? config.getCategory(category).get(name) : null;
     }
 
     public void saveConfig() {

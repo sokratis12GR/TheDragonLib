@@ -145,8 +145,7 @@ public class Vec3D {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
+        if (obj == null || getClass() != obj.getClass()) return false;
         Vec3D other = (Vec3D) obj;
 
         return x == other.x && y == other.y && z == other.z;

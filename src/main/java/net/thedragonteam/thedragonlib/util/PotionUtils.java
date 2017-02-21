@@ -9,7 +9,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 
 import static net.minecraft.potion.Potion.getPotionFromResourceLocation;
-import static net.thedragonteam.thedragonlib.util.TextHelper.localize;
+import static net.minecraft.util.text.translation.I18n.translateToLocalFormatted;
 
 public class PotionUtils {
 
@@ -97,7 +97,7 @@ public class PotionUtils {
     }
 
     public static String localizePotion(String resourceLocation) {
-        return localize(getPotion(resourceLocation).getName() + ".name").trim();
+        return translateToLocalFormatted(getPotion(resourceLocation).getName() + ".name").trim();
     }
 
     public static Potion getPotion(String resourceLocation) {

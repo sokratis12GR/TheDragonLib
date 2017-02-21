@@ -3,7 +3,6 @@ package net.thedragonteam.thedragonlib.network;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
 
 public abstract class MessageHandlerWrapper<REQ extends IMessage, REPLY extends IMessage> implements IMessageHandler<REQ, REPLY> {
 
@@ -17,10 +16,13 @@ public abstract class MessageHandlerWrapper<REQ extends IMessage, REPLY extends 
             }
         };
 
-        if (ctx.side == Side.CLIENT) {
-            syncObject.addPacketClient();
-        } else {
-            syncObject.addPacketServer();
+        switch (ctx.side) {
+            case CLIENT:
+                syncObject.addPacketClient();
+                break;
+            default:
+                syncObject.addPacketServer();
+                break;
         }
 
         return syncObject.reply;

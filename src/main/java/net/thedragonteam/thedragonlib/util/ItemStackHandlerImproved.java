@@ -8,6 +8,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.ItemStackHandler;
 
+import javax.annotation.Nonnull;
+
 public class ItemStackHandlerImproved extends ItemStackHandler {
 
     private boolean tempIgnoreConditions;
@@ -20,22 +22,16 @@ public class ItemStackHandlerImproved extends ItemStackHandler {
         return this.stacks;
     }
 
+    @Nonnull
     @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-        if (!this.tempIgnoreConditions && !this.canInsert(stack, slot)) {
-            return stack;
-        }
-
-        return super.insertItem(slot, stack, simulate);
+    public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+        return !this.tempIgnoreConditions && !this.canInsert(stack, slot) ? stack : super.insertItem(slot, stack, simulate);
     }
 
+    @Nonnull
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        if (!this.tempIgnoreConditions && !this.canExtract(this.getStackInSlot(slot), slot)) {
-            return ItemStackUtils.getNull();
-        }
-
-        return super.extractItem(slot, amount, simulate);
+        return !this.tempIgnoreConditions && !this.canExtract(this.getStackInSlot(slot), slot) ? ItemStackUtils.getNull() : super.extractItem(slot, amount, simulate);
     }
 
     public boolean canInsert(ItemStack stack, int slot) {

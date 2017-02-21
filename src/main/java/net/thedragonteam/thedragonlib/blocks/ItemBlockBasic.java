@@ -4,6 +4,8 @@ import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.thedragonteam.thedragonlib.config.FeatureWrapper;
 
+import javax.annotation.Nonnull;
+
 public class ItemBlockBasic extends ItemBlockTDLib {
 
     private FeatureWrapper feature;
@@ -18,10 +20,9 @@ public class ItemBlockBasic extends ItemBlockTDLib {
         this.setHasSubtypes(feature.variantMap().length > 0);
     }
 
+    @Nonnull
     @Override
     public String getUnlocalizedName(ItemStack stack) {
-        if (getHasSubtypes() && feature.nameMap.containsKey(stack.getItemDamage())) {
-            return (super.getUnlocalizedName(stack) + "." + feature.nameMap.get(stack.getItemDamage())).replaceAll("=", ".").replaceAll(",", ".");
-        } else return super.getUnlocalizedName(stack);
+        return getHasSubtypes() && feature.nameMap.containsKey(stack.getItemDamage()) ? (super.getUnlocalizedName(stack) + "." + feature.nameMap.get(stack.getItemDamage())).replaceAll("=", ".").replaceAll(",", ".") : super.getUnlocalizedName(stack);
     }
 }

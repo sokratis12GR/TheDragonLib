@@ -17,8 +17,6 @@ public class ItemTDLib extends Item {
 
     @Override
     public String getUnlocalizedName(ItemStack stack) {
-        if (getHasSubtypes() && nameMap.containsKey(stack.getItemDamage())) {
-            return super.getUnlocalizedName(stack) + "." + nameMap.get(stack.getItemDamage());
-        } else return super.getUnlocalizedName(stack);
+        return getHasSubtypes() && nameMap.containsKey(stack.getItemDamage()) ? super.getUnlocalizedName(stack) + "." + nameMap.get(stack.getItemDamage()) : super.getUnlocalizedName(stack);
     }
 }
