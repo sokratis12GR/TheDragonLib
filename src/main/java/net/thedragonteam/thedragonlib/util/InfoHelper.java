@@ -61,14 +61,13 @@ public class InfoHelper {
             lineCount = Integer.parseInt(lineCountS);
         }
         catch (NumberFormatException e) {
-            LogHelper.error("Invalid Lore Format! Lore myst start with the number of lines \"3Line 1\\nLine 2\\nLine 3\"");
+            LogHelper.INSTANCE.error("Invalid Lore Format! Lore myst start with the number of lines \"3Line 1\\nLine 2\\nLine 3\"");
         }
 
         String[] loreLines = new String[lineCount];
 
         for (int i = 0; i < lineCount; i++) {
-            if (rawLore.contains("\\n")) loreLines[i] = rawLore.substring(0, rawLore.indexOf("\\n"));
-            else loreLines[i] = rawLore;
+            loreLines[i] = rawLore.contains("\\n") ? rawLore.substring(0, rawLore.indexOf("\\n")) : rawLore;
             if (rawLore.contains("\\n")) rawLore = rawLore.substring(rawLore.indexOf("\\n") + 2);
         }
 

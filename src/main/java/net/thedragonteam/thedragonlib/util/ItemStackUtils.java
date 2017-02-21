@@ -91,21 +91,11 @@ public class ItemStackUtils {
     }
 
     public static ItemStack validateCopy(ItemStack stack){
-        if(isValid(stack)){
-            return stack.copy();
-        }
-        else{
-            return getNull();
-        }
+        return isValid(stack) ? stack.copy() : getNull();
     }
 
     public static ItemStack validateCheck(ItemStack stack){
-        if(isValid(stack)){
-            return stack;
-        }
-        else{
-            return getNull();
-        }
+        return isValid(stack) ? stack : getNull();
     }
 
     public static boolean isValid(ItemStack stack){
@@ -117,12 +107,7 @@ public class ItemStackUtils {
     }
 
     public static int getStackSize(ItemStack stack){
-        if(!isValid(stack)){
-            return 0;
-        }
-        else{
-            return stack.getCount();
-        }
+        return !isValid(stack) ? 0 : stack.getCount();
     }
 
     public static ItemStack setStackSize(ItemStack stack, int size){
@@ -131,12 +116,7 @@ public class ItemStackUtils {
 
     public static ItemStack setStackSize(ItemStack stack, int size, boolean containerOnEmpty){
         if(size <= 0){
-            if(isValid(stack) && containerOnEmpty){
-                return stack.getItem().getContainerItem(stack);
-            }
-            else{
-                return getNull();
-            }
+            return isValid(stack) && containerOnEmpty ? stack.getItem().getContainerItem(stack) : getNull();
         }
         stack.setCount(size);
         return stack;
@@ -151,13 +131,7 @@ public class ItemStackUtils {
     }
 
     public static boolean isIInvEmpty(NonNullList<ItemStack> slots){
-        for(ItemStack stack : slots){
-            if(ItemStackUtils.isValid(stack)){
-                return false;
-            }
-        }
-
-        return true;
+        return slots.stream().noneMatch(ItemStackUtils::isValid);
     }
 
     public static NonNullList<ItemStack> createSlots(int size){

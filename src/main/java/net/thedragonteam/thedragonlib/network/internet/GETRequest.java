@@ -7,69 +7,69 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class GETRequest {
-	
+
 	public String target = "";
 	public String params = "";
 	public String useragent = "";
-	
+
 	public GETRequest(){
-		
+
 		target = "";
 		params = "";
 		useragent = "";
-		
+
 	}
-	
+
 	public GETRequest(String tar){
-		
+
 		target = tar;
 		params = "";
 		useragent = "TheDragonLib";
-		
+
 	}
-	
+
 	public GETRequest(String tar, String par){
-		
+
 		target = tar;
 		params = par;
 		useragent = "TheDragonLib";
-		
+
 	}
-	
+
 	public GETRequest(String tar, String par, String agent){
-		
+
 		target = tar;
 		params = par;
 		useragent = agent;
-		
+
 	}
-	
+
 	public void  setTarget(String tar){
-	
+
 		target = tar;
-	
+
 	}
-	
+
 	public void setParameters(String par){
-		
+
 		params = par;
-		
+
 	}
-	
+
 	public void addParameter(String par){
-		
+
 		params = params + "&" + par;
-		
+
 	}
-	
+
 	public void setUserAgent(String agent){
-		
+
 		useragent = agent;
-		
+
 	}
-	
+
 	public GETResponse execute() throws IOException{
-		
+
 		URL obj = new URL(target + "?" + params);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
@@ -82,7 +82,7 @@ public class GETRequest {
 		BufferedReader in = new BufferedReader(
 		        new InputStreamReader(con.getInputStream()));
 		String inputLine;
-		StringBuffer response = new StringBuffer();
+		StringBuilder response = new StringBuilder();
 
 		while ((inputLine = in.readLine()) != null) {
 			response.append(inputLine);
@@ -90,7 +90,7 @@ public class GETRequest {
 		in.close();
 
 		return new GETResponse(responseCode, response.toString(), target, params, useragent);
-		
+
 	}
 
 }

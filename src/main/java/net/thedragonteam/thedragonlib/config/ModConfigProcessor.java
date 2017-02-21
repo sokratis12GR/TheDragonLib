@@ -25,7 +25,7 @@ public class ModConfigProcessor {
                     Object newValue = getConfigValue(defaultValue, config, property);
                     field.set(null, newValue);
                 } catch (Exception e) {
-                    LogHelper.error("Something when wrong while loading config value [" + property.name() + "]");
+                    LogHelper.INSTANCE.error("Something when wrong while loading config value [" + property.name() + "]");
                     e.printStackTrace();
                 }
             }
@@ -67,10 +67,7 @@ public class ModConfigProcessor {
      * @return The config property if it exists or null if it could not be found.
      */
     public Property findProperty(String category, String name) {
-        if (config.getCategory(category) != null) {
-            return config.getCategory(category).get(name);
-        }
-        return null;
+        return config.getCategory(category) != null ? config.getCategory(category).get(name) : null;
     }
 
     public void saveConfig() {

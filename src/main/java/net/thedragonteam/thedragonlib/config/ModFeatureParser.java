@@ -46,7 +46,7 @@ public class ModFeatureParser {
                     featureEntries.add(new FeatureEntry(field.get(null), field.getAnnotation(Feature.class)));
                 }
                 catch (IllegalAccessException e) {
-                    LogHelper.error("Error Loading Feature!!! [" + field.getAnnotation(Feature.class).name() + "]");
+                    LogHelper.INSTANCE.error("Error Loading Feature!!! [" + field.getAnnotation(Feature.class).name() + "]");
                     e.printStackTrace();
                 }
             }
@@ -74,7 +74,7 @@ public class ModFeatureParser {
 
         }
         catch (Exception var4) {
-            LogHelper.error("Error Loading Block/Item Config");
+            LogHelper.INSTANCE.error("Error Loading Block/Item Config");
             var4.printStackTrace();
         }
         finally {
@@ -114,7 +114,7 @@ public class ModFeatureParser {
                         GameRegistry.register(itemBlock);
                     }
                     catch (Exception e) {
-                        LogHelper.error("Well... It broke... [%s]", entry.feature.name());
+                        LogHelper.INSTANCE.error("Well... It broke... [%s]", entry.feature.name());
                         e.printStackTrace();
                     }
 
@@ -206,12 +206,7 @@ public class ModFeatureParser {
      * Returns true if feature is enabled. Applies to all mods using a ModFeatureParser instance
      * */
     public static boolean isEnabled(Object feature) {
-        if (!featureStates.containsKey(feature)) {
-            return false;
-        }
-        else {
-            return featureStates.get(feature);
-        }
+        return !featureStates.containsKey(feature) ? false : featureStates.get(feature);
     }
 
     private static class FeatureEntry {
