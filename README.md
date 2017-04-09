@@ -3,12 +3,12 @@
 [![](http://cf.way2muchnoise.eu/full_thedragonlib_downloads.svg)](http://minecraft.curseforge.com/projects/thedragonlib)
 [![](http://cf.way2muchnoise.eu/versions/thedragonlib.svg)](http://minecraft.curseforge.com/projects/thedragonlib)
 
-##About this Mod
+## About this Mod
 
 TheDragonLib is a mod created by **[sokratis12GR](http://ftb.gamepedia.com/sokratis12GR)** **(TheDragonTeam)**.
 TheDragonLib is a librally used by all (most) of TheDragonTeam's mods.
 
-##Download
+## Download
 
 [Grab the latest publicly avaialbe versions from curseforge.](https://minecraft.curseforge.com/projects/thedragonlib/files)
 
