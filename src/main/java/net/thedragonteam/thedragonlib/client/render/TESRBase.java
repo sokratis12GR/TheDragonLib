@@ -1,6 +1,7 @@
 package net.thedragonteam.thedragonlib.client.render;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -9,10 +10,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
 public class TESRBase<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
-
     @Override
-    public void renderTileEntityAt(T te, double x, double y, double z, float partialTicks, int destroyStage) {
-
+    public void renderTileEntityFast(T te, double x, double y, double z, float partialTicks, int destroyStage, float partial, BufferBuilder buffer) {
+        super.renderTileEntityFast(te, x, y, z, partialTicks, destroyStage, partial, buffer);
     }
 
     public void renderItem(ItemStack stack) {

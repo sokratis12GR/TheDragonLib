@@ -12,6 +12,14 @@ public class LogHelper {
     public static String[] comment = {"Sorry I did not mean to do that... Please forgive me?", "KABOOM!!!! It Blew Up!!!!", "Oh Sh** what was it this time!?!?", "WHAT DID YOU DO!?!?!?!.. Oh never mind that was me...", "HA! You thought you were going to play minecraft today? NO! You get to play \"Decode the Crash Report\" "};
     private static Logger logger = LogManager.getLogger(TheDragonLib.MODID);
 
+    public static Logger getLogger() {
+        return LogManager.getLogger(TheDragonLib.MODID);
+    }
+
+    public static Logger getLogger(String modid) {
+        return LogManager.getLogger(modid);
+    }
+
     /**
      * Log with a supplied level.
      */

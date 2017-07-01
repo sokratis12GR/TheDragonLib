@@ -1,23 +1,24 @@
 buildscript {
     repositories {
         jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+        maven {  
+			url = "http://files.minecraftforge.net/maven"
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-    }
-}
-
-repositories {
-    maven { // JEI repo
-        url "http://dvs1.progwml6.com/files/maven"
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
 	}
 }
 
+plugins {
+    id "com.matthewprenger.cursegradle" version "1.0.9"
+}
+
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: "com.matthewprenger.cursegradle"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 version = mc_version + '-' + version_major + '.' + version_minor + '.' + version_patch
 group = package_group
@@ -26,15 +27,15 @@ archivesBaseName = mod_id
 minecraft {
     version = "${mc_version}-${forge_version}"
     runDir = "run"
-    makeObfSourceJar = true
+    makeObfSourceJar = false
     useDepAts = true
 
     if (project.hasProperty('mappings_version'))
         mappings = project.mappings_version
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+dependencies {
+}
 
 jar {
     classifier = ''
@@ -46,25 +47,20 @@ jar {
     )
 }
 
-
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
     classifier = 'sources'
 }
 
-task devJar(type: Jar) {
-    classifier = "dev"
+task deobfJar(type: Jar) { // Generate deobfuscated
     from sourceSets.main.output
-    manifest {
-        attributes "FMLAT": "thedragoncore_at.cfg"
-        attributes "FMLCorePlugin": "net.thedragonteam.thedragonlib.TheDragonCore"
-        attributes "FMLCorePluginContainsFMLMod": "true"
-    }
+    classifier = 'deobf'
 }
+tasks.build.dependsOn('deobfJar')
 
 artifacts {
+	archives deobfJar
     archives sourcesJar
-    archives devJar
 }
 
 processResources
@@ -80,9 +76,20 @@ processResources
         // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
-        
+
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
+    }
+}
+
+curseforge {
+    apiKey = project.hasProperty('api_token') ? project.api_token : '0'
+    project {
+        id = '248055'
+        changelog = file('src/main/resources/changelog.md')
+        changelogType = 'markdown'
+        releaseType = 'release'
+        addGameVersion '1.12'
     }
 }

@@ -63,7 +63,6 @@ public class ModConfigProcessor {
      *
      * @param category The property category.
      * @param name     The name or key for the property.
-     *
      * @return The config property if it exists or null if it could not be found.
      */
     public Property findProperty(String category, String name) {

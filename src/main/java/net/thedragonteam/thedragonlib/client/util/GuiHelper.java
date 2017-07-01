@@ -8,11 +8,14 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.thedragonteam.thedragonlib.client.ResourceHelperDL;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
+@SideOnly(Side.CLIENT)
 public class GuiHelper {
     public static final double PXL128 = 0.0078125;
     public static final double PXL256 = 0.00390625;
@@ -25,10 +28,9 @@ public class GuiHelper {
         drawTexturedRect(x, y, width, height, u, v, width, height, 0, PXL256);
     }
 
-    @SuppressWarnings("unchecked")
     public static void drawTexturedRect(double x, double y, double width, double height, int u, int v, int uSize, int vSize, double zLevel, double pxl) {
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer vertexBuffer = tessellator.getBuffer();
+        BufferBuilder vertexBuffer = tessellator.getBuffer();
         vertexBuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
         vertexBuffer.pos(x, y + height, zLevel).tex(u * pxl, (v + vSize) * pxl).endVertex();
         vertexBuffer.pos(x + width, y + height, zLevel).tex((u + uSize) * pxl, (v + vSize) * pxl).endVertex();
@@ -37,12 +39,11 @@ public class GuiHelper {
         tessellator.draw();
     }
 
-    @SuppressWarnings("unchecked")
-    public static void drawHoveringText(List list, int x, int y, FontRenderer font, int guiWidth, int guiHeight) {
+    public static void drawHoveringText(List<String> list, int x, int y, FontRenderer font, int guiWidth, int guiHeight) {
         GuiUtils.drawHoveringText(list, x, y, guiWidth, guiHeight, -1, font);
     }
 
-    public static void drawHoveringTextScaled(List list, int mouseX, int mouseY, FontRenderer font, float fade, double scale, int guiWidth, int guiHeight) {
+    public static void drawHoveringTextScaled(List<String> list, int mouseX, int mouseY, FontRenderer font, float fade, double scale, int guiWidth, int guiHeight) {
         if (!list.isEmpty()) {
             GlStateManager.pushMatrix();
             GlStateManager.disableRescaleNormal();
@@ -95,7 +96,7 @@ public class GuiHelper {
 
             int i2 = 0;
             while (i2 < list.size()) {
-                String s1 = (String) list.get(i2);
+                String s1 = list.get(i2);
                 GlStateManager.enableBlend();
                 GlStateManager.disableAlpha();
                 OpenGlHelper.glBlendFunc(770, 771, 1, 0);
@@ -128,7 +129,7 @@ public class GuiHelper {
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer vertexbuffer = tessellator.getBuffer();
+        BufferBuilder vertexbuffer = tessellator.getBuffer();
         vertexbuffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
         vertexbuffer.pos((double) right, (double) top, zLevel).color(f1, f2, f3, f).endVertex();
         vertexbuffer.pos((double) left, (double) top, zLevel).color(f1, f2, f3, f).endVertex();

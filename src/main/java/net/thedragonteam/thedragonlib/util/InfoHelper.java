@@ -3,16 +3,18 @@ package net.thedragonteam.thedragonlib.util;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 
+@SideOnly(Side.CLIENT)
 public class InfoHelper {
 
     public static final int GUI_TITLE = 0x00FFFF;
 
-    @SuppressWarnings("unchecked")
-    public static void addLore(ItemStack stack, List list, boolean addLeadingLine) {
+    public static void addLore(ItemStack stack, List<String> list, boolean addLeadingLine) {
         String[] lore = getLore(stack);
         if (addLeadingLine) list.add("");
         if (lore == null) {
@@ -25,15 +27,14 @@ public class InfoHelper {
     /**
      * Add lore with a blank line above it
      */
-    public static void addLore(ItemStack stack, List list) {
+    public static void addLore(ItemStack stack, List<String> list) {
         addLore(stack, list, true);
     }
 
     /**
      * Add the standard energy and lore information
      */
-    @SuppressWarnings("unchecked")
-    public static void addEnergyAndLore(ItemStack stack, List list) {
+    public static void addEnergyAndLore(ItemStack stack, List<String> list) {
         if (!isShiftKeyDown())
             list.add(I18n.format("info.sm.hold.txt") + " " + TextFormatting.AQUA + "" + TextFormatting.ITALIC + I18n.format("info.sm.shift.txt") + TextFormatting.RESET + " " + TextFormatting.GRAY + I18n.format("info.sm.forDetails.txt"));
         else {
@@ -67,8 +68,7 @@ public class InfoHelper {
         String[] loreLines = new String[lineCount];
 
         for (int i = 0; i < lineCount; i++) {
-            if (rawLore.contains("\\n")) loreLines[i] = rawLore.substring(0, rawLore.indexOf("\\n"));
-            else loreLines[i] = rawLore;
+            loreLines[i] = rawLore.contains("\\n") ? rawLore.substring(0, rawLore.indexOf("\\n")) : rawLore;
             if (rawLore.contains("\\n")) rawLore = rawLore.substring(rawLore.indexOf("\\n") + 2);
         }
 
@@ -83,14 +83,13 @@ public class InfoHelper {
         return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
     }
 
-    @SuppressWarnings("unchecked")
-    public static boolean holdShiftForDetails(List list, boolean inverted) {
+    public static boolean holdShiftForDetails(List<String> list, boolean inverted) {
         if (isShiftKeyDown() == inverted)
             list.add(I18n.format("info.sc.holdShiftForDetails.txt", TextFormatting.AQUA + "" + TextFormatting.ITALIC, TextFormatting.RESET + "" + TextFormatting.GRAY));
         return isShiftKeyDown();
     }
 
-    public static boolean holdShiftForDetails(List list) {
+    public static boolean holdShiftForDetails(List<String> list) {
         return holdShiftForDetails(list, false);
     }
 

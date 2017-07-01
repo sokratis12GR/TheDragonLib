@@ -1,9 +1,12 @@
 package net.thedragonteam.thedragonlib.client.util;
 
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.thedragonteam.thedragonlib.util.LogHelper;
 import org.lwjgl.opengl.GL11;
 
+@SideOnly(Side.CLIENT)
 public class GLStateHelper {
 
     private static int lastBlendState = -1;

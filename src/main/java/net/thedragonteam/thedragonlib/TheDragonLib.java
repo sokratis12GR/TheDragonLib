@@ -16,22 +16,26 @@ import net.thedragonteam.thedragonlib.network.PacketTileMessage;
 import net.thedragonteam.thedragonlib.proxy.CommonProxy;
 import net.thedragonteam.thedragonlib.util.LogHelper;
 
-@Mod(modid = TheDragonLib.MODID, name = TheDragonLib.MODNAME, version = TheDragonLib.VERSION, updateJSON = TheDragonLib.UPDATE_JSON)
+@Mod(modid = TheDragonLib.MODID,
+        name = TheDragonLib.MODNAME,
+        version = TheDragonLib.VERSION,
+        updateJSON = TheDragonLib.UPDATE_JSON,
+        dependencies = "required-after:forge@[14.21.0.2359,);")
 public class TheDragonLib {
-    public static final String MCVERSION = "1.11.2";
+    public static final String MCVERSION = "1.12";
     // Updates every MAJOR change,
     // never resets
-    public static final int MAJOR = 2;
+    public static final int MAJOR = 4;
     // Updates every time a new block, item or features is added or change,
     // resets on MAJOR changes
-    public static final int MINOR = 2;
+    public static final int MINOR = 0;
     // Updates every time a bug is fixed or issue solved or very minor code changes,
     // resets on MINOR changes
-    public static final int PATCH = 3;
+    public static final int PATCH = 2;
     // The TheDragonCore Version
     public static final String VERSION =
             TheDragonLib.MCVERSION + "-" + TheDragonLib.MAJOR + "." + TheDragonLib.MINOR + "." + TheDragonLib.PATCH;
-    public static final String UPDATE_JSON = "http://fdn.redstone.tech/TheDragonTeam/thedragonlib/update.json";
+    public static final String UPDATE_JSON = "https://download.nodecdn.net/containers/thedragonteam/thedragonlib-updater.json";
     public static final String MODNAME = "TheDragonLib";
     public static final String MODID = "thedragonlib";
     public static final String CLIENT_SIDE = "net.thedragonteam.thedragonlib.proxy.ClientProxy";

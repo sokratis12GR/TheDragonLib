@@ -7,7 +7,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.thedragonteam.thedragonlib.credits.TDLAchievements;
 
 public class CommonProxy {
 
@@ -15,7 +14,6 @@ public class CommonProxy {
     }
 
     public void init(FMLInitializationEvent event) {
-        TDLAchievements.init();
     }
 
     public boolean isDedicatedServer() {
@@ -58,6 +56,5 @@ public class CommonProxy {
     public void registerEvents() {
         //Register to receive subscribed events
         MinecraftForge.EVENT_BUS.register(this);
-        TDLAchievements.init();
     }
 }

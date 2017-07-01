@@ -14,6 +14,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.thedragonteam.thedragonlib.api.IDataRetainerTile;
 import net.thedragonteam.thedragonlib.util.ItemNBTHelper;
 
@@ -35,8 +37,9 @@ public class BlockTDLib extends Block {
 
     //region Rename field names
     @Override
-    public void getSubBlocks(@Nonnull Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list) {
-        super.getSubBlocks(itemIn, tab, list);
+    @SideOnly(Side.CLIENT)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> tab) {
+        super.getSubBlocks(itemIn, tab);
     }
 
     @Override

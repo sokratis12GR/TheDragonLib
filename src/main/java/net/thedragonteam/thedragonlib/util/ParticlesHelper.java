@@ -40,8 +40,9 @@ public class ParticlesHelper {
     }
 
     public static void spawnParticle(Entity entity, EnumParticleTypes particleType, double xCoord, double yCoord, double zCoord, double xzSpeed, boolean xz) {
-        if (xz)
+        if (xz) {
             spawnParticle(entity, particleType, xCoord, yCoord, zCoord, xzSpeed, xzSpeed);
+        }
     }
 
     public static void spawnParticle(Entity entity, EnumParticleTypes particleType, double xCoord, double yCoord, double zCoord, double speed, Pos pos) {

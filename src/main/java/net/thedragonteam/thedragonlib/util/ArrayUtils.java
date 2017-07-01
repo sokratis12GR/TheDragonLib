@@ -1,15 +1,12 @@
 package net.thedragonteam.thedragonlib.util;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 public class ArrayUtils {
 
     public static String[] arrayToLowercase(String[] array) {
-        String[] lowercaseArray = new String[array.length];
-        for (int i = 0; i < array.length; i++) {
-            lowercaseArray[i] = array[i].toLowerCase(Locale.ENGLISH);
-        }
-        return lowercaseArray;
+        return Arrays.stream(array).map(s -> s.toLowerCase(Locale.ENGLISH)).toArray(String[]::new);
     }
 
     /**

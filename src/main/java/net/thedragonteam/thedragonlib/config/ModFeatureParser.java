@@ -4,16 +4,12 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.thedragonteam.thedragonlib.blocks.ItemBlockTDLib;
 import net.thedragonteam.thedragonlib.util.LogHelper;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,54 +88,6 @@ public class ModFeatureParser {
 
             if (entry.featureObj instanceof ICustomRegistry) {
                 ((ICustomRegistry) entry.featureObj).registerFeature(entry.feature);
-                continue;
-            }
-
-            if (entry.featureObj instanceof Block) {
-                Block block = (Block) entry.featureObj;
-                block.setRegistryName(entry.feature.name());
-                block.setUnlocalizedName(modid.toLowerCase() + ":" + entry.feature.name());
-
-                if (entry.feature.cTab() >= 0 && entry.feature.cTab() < modTabs.length) {
-                    block.setCreativeTab(modTabs[entry.feature.cTab()]);
-                }
-
-                if (ItemBlockTDLib.class.isAssignableFrom(entry.feature.itemBlock())) {
-                    GameRegistry.register(block);
-
-                    try {
-                        Constructor<? extends ItemBlock> constructor = entry.feature.itemBlock().getConstructor(Block.class, FeatureWrapper.class);
-                        ItemBlock itemBlock = constructor.newInstance(block, new FeatureWrapper(entry.feature));
-                        itemBlock.setRegistryName(block.getRegistryName());
-                        GameRegistry.register(itemBlock);
-                    }
-                    catch (Exception e) {
-                        LogHelper.error("Well... It broke... [%s]", entry.feature.name());
-                        e.printStackTrace();
-                    }
-
-                } else {
-                    GameRegistry.register(block);
-                    GameRegistry.register(new ItemBlock(block).setRegistryName(block.getRegistryName()));
-                }
-
-                if (block.hasTileEntity(block.getDefaultState())) {
-                    if (block instanceof IRegisterMyOwnTiles) {
-                        ((IRegisterMyOwnTiles) block).registerTiles(modid.toLowerCase() + ":", entry.feature.name());
-                    } else {
-                        GameRegistry.registerTileEntity(entry.feature.tileEntity(), modid.toLowerCase() + ":" + entry.feature.name());
-                    }
-                }
-            } else if (entry.featureObj instanceof Item) {
-                Item item = (Item) entry.featureObj;
-                item.setRegistryName(entry.feature.name());
-                item.setUnlocalizedName(modid.toLowerCase() + ":" + entry.feature.name());
-
-                if (entry.feature.cTab() >= 0 && entry.feature.cTab() < modTabs.length) {
-                    item.setCreativeTab(modTabs[entry.feature.cTab()]);
-                }
-
-                GameRegistry.register(item);
             }
         }
     }
@@ -186,6 +134,7 @@ public class ModFeatureParser {
         }
     }
 
+    @SideOnly(Side.CLIENT)
     private void registerVariants(Item item, Feature feature) {
         for (String s : feature.variantMap()) {
             int meta = Integer.parseInt(s.substring(0, s.indexOf(":")));

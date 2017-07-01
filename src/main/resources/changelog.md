@@ -1,22 +1,13 @@
-**1.11.2-2.2.3:**
+## 1.12-4.0.1
 
-Quick Fix:
+* **Made it work with latest Forge 1.12**
 
-* Fixed server crash on startup with A+
+## 1.12-4.0.0
 
-**1.11.2-2.2.2:**
+**Features & Dependencies Changed**:
 
-Quick Fix:
+* Code is no longer in Kotlin, no longer requires Forgelin in order to work
 
-* Fixed server crash on startup
+**Minecraft**:
 
-**1.11.2-2.2.1:**
-
-Quick Fix:
-
-* Fixed access level of some classes
-
-**1.11.2-2.2.0:**
-
-* Added more utilities, fixed some crashes, and some bugs, 
-added a way of adding achievements as mods that depend on thedragonlib
+* Updated to minecraft 1.12

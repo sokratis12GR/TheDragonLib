@@ -136,10 +136,12 @@ public class TileTDLBase extends TileEntity {
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
         if (this instanceof IDataRetainerTile) {
+            //noinspection MethodCallSideOnly
             ((IDataRetainerTile) this).readDataFromNBT(pkt.getNbtCompound());
         }
 
         for (SyncableObject syncableObject : syncableObjectMap.values()) {
+            //noinspection MethodCallSideOnly
             syncableObject.fromNBT(pkt.getNbtCompound());
         }
     }
@@ -174,7 +176,7 @@ public class TileTDLBase extends TileEntity {
 
     public void dirtyBlock() {
         Chunk chunk = world.getChunkFromBlockCoords(getPos());
-        chunk.setChunkModified();
+        chunk.markDirty();
     }
 
     /**
