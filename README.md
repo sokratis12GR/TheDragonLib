@@ -6,7 +6,8 @@
 ## About this Mod
 
 TheDragonLib is a mod created by **[sokratis12GR](http://ftb.gamepedia.com/sokratis12GR)** **(TheDragonTeam)**.
-TheDragonLib is a library used by all (most) of TheDragonTeam's mods.
+
+TheDragonLib is a library mod that provides some essential utils and functionality for most of the TheDragonTeam's Mods.
 
 ## Download
 
