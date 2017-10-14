@@ -1,19 +1,17 @@
 # TheDragonLib (TDL)
 
-[![](http://cf.way2muchnoise.eu/full_thedragonlib_downloads.svg)](http://minecraft.curseforge.com/projects/thedragonlib)
-[![](http://cf.way2muchnoise.eu/versions/thedragonlib.svg)](http://minecraft.curseforge.com/projects/thedragonlib)
+[![](http://cf.way2muchnoise.eu/full_thedragonlib_downloads.svg)](https://minecraft.curseforge.com/projects/thedragonlib)
+[![](http://cf.way2muchnoise.eu/versions/thedragonlib.svg)](https://minecraft.curseforge.com/projects/thedragonlib)
 
 ## About this Mod
 
-TheDragonLib is a mod created by **[sokratis12GR](http://ftb.gamepedia.com/sokratis12GR)** **(TheDragonTeam)**.
+TheDragonLib is a mod created by **[sokratis12GR](https://sokratis12gr.com)** **(TheDragonTeam)**.
 
 TheDragonLib is a library mod that provides some essential utils and functionality for most of the TheDragonTeam's Mods.
 
 ## Download
 
 [Grab the latest publicly available versions from curseforge.](https://minecraft.curseforge.com/projects/thedragonlib/files)
-
-[Or you can get a version from dev builds](http://fdn.redstone.tech/TheDragonTeam/thedragonlib/jars/)
 
 ## Licence
 
