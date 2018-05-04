@@ -105,7 +105,7 @@ public class Utils {
      */
     public static int determineOrientation(int x, int y, int z, EntityLivingBase entity) {
         if (MathHelper.abs((float) entity.posX - (float) x) < 2.0F && MathHelper.abs((float) entity.posZ - (float) z) < 2.0F) {
-            double d0 = entity.posY + 1.82D - (double) entity.getYOffset();
+            double d0 = entity.posY + 1.82D - entity.getYOffset();
 
             if (d0 - (double) y > 2.0D) return 0;
 
@@ -113,7 +113,7 @@ public class Utils {
         }
 
         int l = MathHelper.floor((double) (entity.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-        return l == 0 ? 3 : (l == 1 ? 4 : (l == 2 ? 2 : (l == 3 ? 5 : 0)));
+        return l == 0 ? 3 : l == 1 ? 4 : l == 2 ? 2 : 5;
     }
 
     public static double round(double number, double multiplier) {
@@ -126,8 +126,8 @@ public class Utils {
         if (number < 0) result *= -1;
 
         if (result % multiple == 0) return number;
-        else if (result % multiple < multiple / 2) result = result - result % multiple;
-        else result = result + (multiple - result % multiple);
+        else if (result % multiple < multiple / 2) result -= result % multiple;
+        else result += (multiple - result % multiple);
 
         if (number < 0) result *= -1;
 

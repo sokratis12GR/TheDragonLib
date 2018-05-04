@@ -4,7 +4,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.thedragonteam.thedragonlib.util.LogHelper;
 
-import java.lang.reflect.Field;
+import java.util.Arrays;
 
 public class ModConfigProcessor {
 
@@ -17,19 +17,17 @@ public class ModConfigProcessor {
     public void processConfig(Class configClass, Configuration config) {
         this.configClass = configClass;
         this.config = config;
-        for (Field field : configClass.getFields()) {
-            if (field.isAnnotationPresent(ModConfigProperty.class)) {
-                ModConfigProperty property = field.getAnnotation(ModConfigProperty.class);
-                try {
-                    Object defaultValue = field.get(null);
-                    Object newValue = getConfigValue(defaultValue, config, property);
-                    field.set(null, newValue);
-                } catch (Exception e) {
-                    LogHelper.error("Something when wrong while loading config value [" + property.name() + "]");
-                    e.printStackTrace();
-                }
+        Arrays.stream(configClass.getFields()).filter(field -> field.isAnnotationPresent(ModConfigProperty.class)).forEachOrdered(field -> {
+            ModConfigProperty property = field.getAnnotation(ModConfigProperty.class);
+            try {
+                Object defaultValue = field.get(null);
+                Object newValue = getConfigValue(defaultValue, config, property);
+                field.set(null, newValue);
+            } catch (Exception e) {
+                LogHelper.error("Something when wrong while loading config value [" + property.name() + "]");
+                e.printStackTrace();
             }
-        }
+        });
 
         saveConfig();
     }

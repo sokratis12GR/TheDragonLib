@@ -24,18 +24,20 @@ public class HandHelper {
      * Returns the first item found in ether of the players hands that is the same as the given item
      */
     public static ItemStack getItem(EntityPlayer player, Item item) {
-        if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() == item)
+        if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() == item) {
             return player.getHeldItemMainhand();
-        else if (!player.getHeldItemOffhand().isEmpty() && player.getHeldItemOffhand().getItem() == item)
+        } else if (!player.getHeldItemOffhand().isEmpty() && player.getHeldItemOffhand().getItem() == item) {
             return player.getHeldItemOffhand();
+        }
         return ItemStack.EMPTY;
     }
 
     public static ItemStack getItemStack(EntityPlayer player, ItemStack itemStack) {
-        if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() == itemStack.getItem() && player.getHeldItemMainhand().getItemDamage() == itemStack.getItemDamage())
+        if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() == itemStack.getItem() && player.getHeldItemMainhand().getItemDamage() == itemStack.getItemDamage()) {
             return player.getHeldItemMainhand();
-        else if (!player.getHeldItemOffhand().isEmpty() && player.getHeldItemOffhand().getItem() == itemStack.getItem() && player.getHeldItemOffhand().getItemDamage() == itemStack.getItemDamage())
+        } else if (!player.getHeldItemOffhand().isEmpty() && player.getHeldItemOffhand().getItem() == itemStack.getItem() && player.getHeldItemOffhand().getItemDamage() == itemStack.getItemDamage()) {
             return player.getHeldItemOffhand();
+        }
         return ItemStack.EMPTY;
     }
 

@@ -90,6 +90,6 @@ curseforge {
         changelog = file('src/main/resources/changelog.md')
         changelogType = 'markdown'
         releaseType = 'release'
-        addGameVersion '1.12'
+        addGameVersion '1.12.2'
     }
 }

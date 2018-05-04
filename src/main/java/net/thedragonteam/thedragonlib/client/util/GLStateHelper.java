@@ -30,13 +30,12 @@ public class GLStateHelper {
                 LogHelper.bigError("[GLStateHelper] Attempt to pop before pushing");
                 break;
             default:
-                switch (lastBlendState) {
-                    case 1:
-                        GlStateManager.enableBlend();
-                        break;
-                    default:
-                        GlStateManager.disableBlend();
-                        break;
+                if (lastBlendState == 1) {
+                    GlStateManager.enableBlend();
+
+                } else {
+                    GlStateManager.disableBlend();
+
                 }
                 lastBlendState = -1;
                 break;

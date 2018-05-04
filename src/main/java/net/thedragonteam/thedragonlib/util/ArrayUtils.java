@@ -27,9 +27,7 @@ public class ArrayUtils {
         for (int i = 0; i < input.length; i++) {
             int newPos = (i + shift) % input.length;
 
-            if (newPos < 0) {
-                newPos += input.length;
-            }
+            if (newPos < 0) newPos += input.length;
 
             newArray[newPos] = input[i];
         }

@@ -2,6 +2,7 @@ package net.thedragonteam.thedragonlib.config;
 
 import net.minecraft.item.ItemBlock;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,10 +23,10 @@ public class FeatureWrapper {
         this.itemBlockClass = feature.itemBlock();
 
         if (feature.variantMap().length > 0) {
-            for (String s : feature.variantMap()) {
+            Arrays.stream(feature.variantMap()).forEachOrdered(s -> {
                 int meta = Integer.parseInt(s.substring(0, s.indexOf(":")));
                 nameMap.put(meta, s.substring(s.indexOf(":") + 1));
-            }
+            });
         }
     }
 

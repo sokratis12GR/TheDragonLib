@@ -103,7 +103,6 @@ public class Vec3I {
         Vec3I other = (Vec3I) obj;
 
         return x == other.x && y == other.y && z == other.z;
-
     }
 
     @Override

@@ -10,11 +10,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.thedragonteam.thedragonlib.util.LogHelper;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ModFeatureParser {
 
@@ -27,7 +23,7 @@ public class ModFeatureParser {
     private static final List<FeatureEntry> featureEntries = new ArrayList<>();
 
     /**
-     * @param modid modid of the mod implementing this instance of ModFeatureParser
+     * @param modid   modid of the mod implementing this instance of ModFeatureParser
      * @param modTabs list of creative tabs that belong to the mod
      */
     public ModFeatureParser(String modid, CreativeTabs[] modTabs) {
@@ -36,22 +32,20 @@ public class ModFeatureParser {
     }
 
     public void loadFeatures(Class collection) {
-        for (Field field : collection.getFields()) {
-            if (field.isAnnotationPresent(Feature.class)) {
-                try {
-                    featureEntries.add(new FeatureEntry(field.get(null), field.getAnnotation(Feature.class)));
-                }
-                catch (IllegalAccessException e) {
-                    LogHelper.error("Error Loading Feature!!! [" + field.getAnnotation(Feature.class).name() + "]");
-                    e.printStackTrace();
-                }
+        Arrays.stream(collection.getFields()).filter(field -> field.isAnnotationPresent(Feature.class)).forEachOrdered(field -> {
+            try {
+                featureEntries.add(new FeatureEntry(field.get(null), field.getAnnotation(Feature.class)));
+            } catch (IllegalAccessException e) {
+                LogHelper.error("Error Loading Feature!!! [" + field.getAnnotation(Feature.class).name() + "]");
+                e.printStackTrace();
             }
-        }
+        });
     }
 
     /**
      * Generates or reads the config setting for every loaded feature.
      * Must be called AFTER loadFeatures
+     *
      * @param configuration the mods configuration
      */
     public void loadFeatureConfig(Configuration configuration) {
@@ -68,12 +62,10 @@ public class ModFeatureParser {
                 featureStates.put(entry.featureObj, entry.enabled);
             }
 
-        }
-        catch (Exception var4) {
+        } catch (Exception var4) {
             LogHelper.error("Error Loading Block/Item Config");
             var4.printStackTrace();
-        }
-        finally {
+        } finally {
             if (configuration.hasChanged()) configuration.save();
         }
     }
@@ -83,13 +75,11 @@ public class ModFeatureParser {
      * Must be called AFTER loadFeatureConfig
      */
     public void registerFeatures() {
-        for (FeatureEntry entry : featureEntries) {
-            if (!entry.enabled) continue;
-
-            if (entry.featureObj instanceof ICustomRegistry) {
-                ((ICustomRegistry) entry.featureObj).registerFeature(entry.feature);
-            }
-        }
+        featureEntries.stream().filter(entry -> entry.enabled).filter(
+                entry -> entry.featureObj instanceof ICustomRegistry
+        ).forEachOrdered(
+                entry -> ((ICustomRegistry) entry.featureObj).registerFeature(entry.feature)
+        );
     }
 
     /**
@@ -136,26 +126,26 @@ public class ModFeatureParser {
 
     @SideOnly(Side.CLIENT)
     private void registerVariants(Item item, Feature feature) {
-        for (String s : feature.variantMap()) {
+        Arrays.stream(feature.variantMap()).forEachOrdered(s -> {
             int meta = Integer.parseInt(s.substring(0, s.indexOf(":")));
             String fullName = modid.toLowerCase() + ":" + feature.name();
             String variant = s.substring(s.indexOf(":") + 1);
             ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(fullName, variant));
-        }
+        });
     }
 
     /**
      * Returns true if this object has been registered with a ModFeatureParser
-     * */
+     */
     public static boolean isFeature(Object object) {
         return featureStates.containsKey(object);
     }
 
     /**
      * Returns true if feature is enabled. Applies to all mods using a ModFeatureParser instance
-     * */
+     */
     public static boolean isEnabled(Object feature) {
-        return !featureStates.containsKey(feature) ? false : featureStates.get(feature);
+        return featureStates.getOrDefault(feature, false);
     }
 
     private static class FeatureEntry {

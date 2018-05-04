@@ -30,6 +30,7 @@ public class ResourceHelperDL {
         return cachedResources.get(rs);
     }
 
+    @SideOnly(Side.CLIENT)
     public static void bindTexture(String rs) {
         bindTexture(getResource(rs));
     }

@@ -10,6 +10,7 @@ import org.apache.commons.lang3.text.WordUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @SideOnly(Side.CLIENT)
 public class TextHelper {
@@ -35,15 +36,13 @@ public class TextHelper {
 
     public static ArrayList<String> localizeAll(List<String> input) {
         ArrayList<String> ret = new ArrayList<>(input.size());
-        for (int i = 0; i < input.size(); i++)
-            ret.add(i, localize(input.get(i)));
+        IntStream.range(0, input.size()).forEachOrdered(i -> ret.add(i, localize(input.get(i))));
         return ret;
     }
 
     public static ArrayList<String> localizeAllEffect(List<String> input) {
         ArrayList<String> ret = new ArrayList<>(input.size());
-        for (int i = 0; i < input.size(); i++)
-            ret.add(i, localizeEffect(input.get(i)));
+        IntStream.range(0, input.size()).forEachOrdered(i -> ret.add(i, localizeEffect(input.get(i))));
         return ret;
     }
 

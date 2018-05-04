@@ -71,5 +71,10 @@ public class ParticlesHelper {
         POS_X,
         POS_Y,
         POS_Z,;
+
+        Pos() {
+        }
+
+
     }
 }

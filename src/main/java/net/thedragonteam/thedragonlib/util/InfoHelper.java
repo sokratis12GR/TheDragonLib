@@ -7,6 +7,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
+import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
 
 @SideOnly(Side.CLIENT)
@@ -21,7 +23,9 @@ public class InfoHelper {
             list.add("" + TextFormatting.ITALIC + "" + TextFormatting.DARK_PURPLE + "Invalid lore localization! (something is broken)");
             return;
         }
-        for (String s : lore) list.add("" + TextFormatting.ITALIC + "" + TextFormatting.DARK_PURPLE + s);
+        Arrays.stream(lore).map(
+            s -> "" + TextFormatting.ITALIC + "" + TextFormatting.DARK_PURPLE + s
+        ).forEachOrdered(list::add);
     }
 
     /**
@@ -36,7 +40,10 @@ public class InfoHelper {
      */
     public static void addEnergyAndLore(ItemStack stack, List<String> list) {
         if (!isShiftKeyDown())
-            list.add(I18n.format("info.sm.hold.txt") + " " + TextFormatting.AQUA + "" + TextFormatting.ITALIC + I18n.format("info.sm.shift.txt") + TextFormatting.RESET + " " + TextFormatting.GRAY + I18n.format("info.sm.forDetails.txt"));
+            list.add(MessageFormat.format("{0} {1}{2}{3}{4} {5}{6}",
+                I18n.format("info.sm.hold.txt"),
+                TextFormatting.AQUA, TextFormatting.ITALIC, I18n.format("info.sm.shift.txt"), TextFormatting.RESET,
+                TextFormatting.GRAY, I18n.format("info.sm.forDetails.txt")));
         else {
             addLore(stack, list);
         }
@@ -60,8 +67,7 @@ public class InfoHelper {
 
         try {
             lineCount = Integer.parseInt(lineCountS);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             LogHelper.error("Invalid Lore Format! Lore myst start with the number of lines \"3Line 1\\nLine 2\\nLine 3\"");
         }
 
@@ -84,8 +90,9 @@ public class InfoHelper {
     }
 
     public static boolean holdShiftForDetails(List<String> list, boolean inverted) {
-        if (isShiftKeyDown() == inverted)
+        if (isShiftKeyDown() == inverted) {
             list.add(I18n.format("info.sc.holdShiftForDetails.txt", TextFormatting.AQUA + "" + TextFormatting.ITALIC, TextFormatting.RESET + "" + TextFormatting.GRAY));
+        }
         return isShiftKeyDown();
     }
 
