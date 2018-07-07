@@ -1,15 +1,12 @@
 package net.thedragonteam.thedragonlib.util;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 public class ArrayUtils {
 
     public static String[] arrayToLowercase(String[] array) {
-        String[] lowercaseArray = new String[array.length];
-        for (int i = 0; i < array.length; i++) {
-            lowercaseArray[i] = array[i].toLowerCase(Locale.ENGLISH);
-        }
-        return lowercaseArray;
+        return Arrays.stream(array).map(s -> s.toLowerCase(Locale.ENGLISH)).toArray(String[]::new);
     }
 
     /**
@@ -30,9 +27,7 @@ public class ArrayUtils {
         for (int i = 0; i < input.length; i++) {
             int newPos = (i + shift) % input.length;
 
-            if (newPos < 0) {
-                newPos += input.length;
-            }
+            if (newPos < 0) newPos += input.length;
 
             newArray[newPos] = input[i];
         }

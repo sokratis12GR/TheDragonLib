@@ -4,7 +4,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.thedragonteam.thedragonlib.util.LogHelper;
 
-import java.lang.reflect.Field;
+import java.util.Arrays;
 
 public class ModConfigProcessor {
 
@@ -17,40 +17,41 @@ public class ModConfigProcessor {
     public void processConfig(Class configClass, Configuration config) {
         this.configClass = configClass;
         this.config = config;
-        for (Field field : configClass.getFields()) {
-            if (field.isAnnotationPresent(ModConfigProperty.class)) {
-                ModConfigProperty property = field.getAnnotation(ModConfigProperty.class);
-                try {
-                    Object defaultValue = field.get(null);
-                    Object newValue = getConfigValue(defaultValue, config, property);
-                    field.set(null, newValue);
-                } catch (Exception e) {
-                    LogHelper.error("Something when wrong while loading config value [" + property.name() + "]");
-                    e.printStackTrace();
-                }
+        Arrays.stream(configClass.getFields()).filter(field -> field.isAnnotationPresent(ModConfigProperty.class)).forEachOrdered(field -> {
+            ModConfigProperty property = field.getAnnotation(ModConfigProperty.class);
+            try {
+                Object defaultValue = field.get(null);
+                Object newValue = getConfigValue(defaultValue, config, property);
+                field.set(null, newValue);
+            } catch (Exception e) {
+                LogHelper.error("Something when wrong while loading config value [" + property.name() + "]");
+                e.printStackTrace();
             }
-        }
+        });
 
         saveConfig();
     }
 
     public static Object getConfigValue(Object defaultValue, Configuration configuration, ModConfigProperty property) throws Exception {
+        String category = property.category();
+        String name = property.name();
+        String comment = property.comment();
         if (defaultValue instanceof Boolean) {
-            return configuration.get(property.category(), property.name(), (Boolean) defaultValue, property.comment()).getBoolean((Boolean) defaultValue);
+            return configuration.get(category, name, (Boolean) defaultValue, comment).getBoolean((Boolean) defaultValue);
         } else if (defaultValue instanceof boolean[]) {
-            return configuration.get(property.category(), property.name(), (boolean[]) defaultValue, property.comment()).getBooleanList();
+            return configuration.get(category, name, (boolean[]) defaultValue, comment).getBooleanList();
         } else if (defaultValue instanceof Double) {
-            return configuration.get(property.category(), property.name(), (Double) defaultValue, property.comment()).getDouble((Double) defaultValue);
+            return configuration.get(category, name, (Double) defaultValue, comment).getDouble((Double) defaultValue);
         } else if (defaultValue instanceof double[]) {
-            return configuration.get(property.category(), property.name(), (double[]) defaultValue, property.comment()).getDoubleList();
+            return configuration.get(category, name, (double[]) defaultValue, comment).getDoubleList();
         } else if (defaultValue instanceof Integer) {
-            return configuration.get(property.category(), property.name(), (Integer) defaultValue, property.comment()).getInt((Integer) defaultValue);
+            return configuration.get(category, name, (Integer) defaultValue, comment).getInt((Integer) defaultValue);
         } else if (defaultValue instanceof int[]) {
-            return configuration.get(property.category(), property.name(), (int[]) defaultValue, property.comment()).getIntList();
+            return configuration.get(category, name, (int[]) defaultValue, comment).getIntList();
         } else if (defaultValue instanceof String) {
-            return configuration.get(property.category(), property.name(), (String) defaultValue, property.comment()).getString();
+            return configuration.get(category, name, (String) defaultValue, comment).getString();
         } else if (defaultValue instanceof String[]) {
-            return configuration.get(property.category(), property.name(), (String[]) defaultValue, property.comment()).getStringList();
+            return configuration.get(category, name, (String[]) defaultValue, comment).getStringList();
         }
         throw new Exception("Config data class is unknown");
     }
@@ -63,7 +64,6 @@ public class ModConfigProcessor {
      *
      * @param category The property category.
      * @param name     The name or key for the property.
-     *
      * @return The config property if it exists or null if it could not be found.
      */
     public Property findProperty(String category, String name) {

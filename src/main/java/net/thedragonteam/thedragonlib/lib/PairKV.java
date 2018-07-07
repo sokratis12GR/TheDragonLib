@@ -35,25 +35,17 @@ public class PairKV<K, V> {
             return true;
         } else if (!(var1 instanceof PairKV)) {
             return false;
-        } else {
-            PairKV var2 = (PairKV) var1;
-            if (this.key != null) {
-                if (!this.key.equals(var2.key)) {
-                    return false;
-                }
-            } else if (var2.key != null) {
-                return false;
-            }
-
-            if (this.value != null) {
-                if (!this.value.equals(var2.value)) {
-                    return false;
-                }
-            } else if (var2.value != null) {
-                return false;
-            }
-
-            return true;
         }
+        PairKV var2 = (PairKV) var1;
+        if (this.key != null) {
+            if (!this.key.equals(var2.key)) {
+                return false;
+            }
+        } else if (var2.key != null) {
+            return false;
+        }
+
+        return this.value != null ? this.value.equals(var2.value) : var2.value == null;
+
     }
 }

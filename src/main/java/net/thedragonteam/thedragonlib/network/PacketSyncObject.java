@@ -3,7 +3,11 @@ package net.thedragonteam.thedragonlib.network;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.thedragonteam.thedragonlib.util.LogHelper;
+
+import java.util.Objects;
 
 public abstract class PacketSyncObject<REQ extends IMessage, REPLY extends IMessage> implements Runnable {
 
@@ -25,9 +29,10 @@ public abstract class PacketSyncObject<REQ extends IMessage, REPLY extends IMess
                 LogHelper.error("[SyncPacket#addPacketServer] HEY!!! I caught you this time! WRONG SIDE!!!! - " + message.getClass());
                 return;
         }
-        ctx.getServerHandler().player.getServer().addScheduledTask(this);
+        Objects.requireNonNull(ctx.getServerHandler().player.getServer()).addScheduledTask(this);
     }
 
+    @SideOnly(Side.CLIENT)
     public void addPacketClient() {
         switch (ctx.side) {
             case SERVER:

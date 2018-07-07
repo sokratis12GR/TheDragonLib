@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 public @interface ModConfigProperty {
     String name();
 
-    String category();
+    String category() default "";
 
     String comment() default "";
 }

@@ -5,136 +5,155 @@
 package net.thedragonteam.thedragonlib.util;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
+import java.util.Arrays;
+import java.util.Collections;
+
+import static java.util.Objects.requireNonNull;
 import static net.minecraft.item.Item.getByNameOrId;
 import static net.minecraft.item.Item.getItemFromBlock;
 
 public class ItemStackUtils {
+
     public static ItemStack getTICItemStack(String name, int meta) {
-        return getItemStack(getByNameOrId("tconstruct:" + name), meta);
+        return getItemStack("tconstruct", name, meta);
     }
 
     public static ItemStack getAPItemStack(String name, int meta) {
-        return getItemStack(getByNameOrId("armorplus:" + name), meta);
+        return getItemStack("armorplus", name, meta);
     }
 
     public static ItemStack getAPItemStack(String name) {
-        return getItemStack(getByNameOrId("armorplus:" + name), 0);
+        return getAPItemStack(name, 0);
     }
 
     public static ItemStack getItemStack(String modid, String itemName, int meta) {
         return getItemStack(getByNameOrId(modid + ":" + itemName), meta);
     }
 
-    public static ItemStack getItemStack(String name, int meta) {
-        return getItemStack(getByNameOrId(name), meta);
-    }
-
-    public static ItemStack getItemStack(String name) {
-        return getItemStack(getByNameOrId(name), 0);
-    }
-
     public static ItemStack getItemStack(String modid, String itemName) {
-        return getItemStack(getByNameOrId(modid + ":" + itemName), 0);
+        return getItemStack(modid, itemName, 0);
     }
 
-    public static ItemStack getItemStack(Item item, int amount, int meta) {
-        return new ItemStack(item, amount, meta);
+    public static ItemStack getItemStack(Object type, int amount, int meta) {
+        if (type instanceof String) {
+            return new ItemStack(requireNonNull(getByNameOrId((String) type)), amount, meta);
+        } else if (type instanceof Block) {
+            return new ItemStack((Block) type, amount, meta);
+        } else if (type instanceof Item) {
+            return new ItemStack((Item) type, amount, meta);
+        }
+        return ItemStack.EMPTY;
     }
 
-    public static ItemStack getItemStack(Item item, int meta) {
-        return getItemStack(item, 1, meta);
+
+    public static ItemStack getItemStack(Object type, int meta) {
+        if (type instanceof String) {
+            return getItemStack(getByNameOrId((String) type), 1, meta);
+        } else if (type instanceof Block) {
+            return getItemStack(type, 1, meta);
+        } else if (type instanceof Item) {
+            return getItemStack(type, 1, meta);
+        }
+        return ItemStack.EMPTY;
     }
 
-    public static ItemStack getItemStack(Item item) {
-        return new ItemStack(item, 1);
-    }
-
-    public static ItemStack getItemStack(Block block, int amount, int meta) {
-        return new ItemStack(block, amount, meta);
-    }
-
-    public static ItemStack getItemStack(Block block, int meta) {
-        return getItemStack(block, 1, meta);
-    }
-
-    public static ItemStack getItemStack(Block block) {
-        return new ItemStack(block, 1);
+    public static ItemStack getItemStack(Object type) {
+        if (type instanceof String) {
+            return getItemStack(getByNameOrId((String) type), 0);
+        } else if (type instanceof Block) {
+            return getItemStack(type, 0);
+        } else if (type instanceof Item) {
+            return getItemStack(type, 0);
+        } else if (type instanceof ItemStack) {
+            return (ItemStack) type;
+        }
+        return ItemStack.EMPTY;
     }
 
     public static ItemStack getEmptyStack() {
         return ItemStack.EMPTY;
     }
 
-    public static Item getItem(ItemStack stack) {
-        return stack.getItem();
-    }
-
-    public static Item getItem(Block block) {
-        return getItemFromBlock(block);
+    public static Item getItem(Object type) {
+        if (type instanceof String) {
+            return getByNameOrId((String) type);
+        } else if (type instanceof Block) {
+            return getItemFromBlock((Block) type);
+        } else if (type instanceof ItemStack) {
+            return ((ItemStack) type).getItem();
+        }
+        return ItemStack.EMPTY.getItem();
     }
 
     public static Item getItem(String modName, String itemName) {
         return getByNameOrId(modName + ":" + itemName);
     }
 
-    public static Item getItem(String name) {
-        return getByNameOrId(name);
-    }
-
     public static Item getEmptyItem() {
-        return Items.AIR;
+        return ItemStack.EMPTY.getItem();
     }
 
-    public static ItemStack validateCopy(ItemStack stack){
+    public static ItemStack validateCopy(ItemStack stack) {
         return isValid(stack) ? stack.copy() : getNull();
     }
 
-    public static ItemStack validateCheck(ItemStack stack){
+    public static ItemStack validateCheck(ItemStack stack) {
         return isValid(stack) ? stack : getNull();
     }
 
-    public static boolean isValid(ItemStack stack){
+    public static boolean isValid(ItemStack stack) {
         return stack != null && !stack.isEmpty();
     }
 
-    public static ItemStack getNull(){
+    public static ItemStack getNull() {
         return ItemStack.EMPTY;
     }
 
-    public static int getStackSize(ItemStack stack){
+    public static int getStackSize(ItemStack stack) {
         return !isValid(stack) ? 0 : stack.getCount();
     }
 
-    public static ItemStack setStackSize(ItemStack stack, int size){
+    public static ItemStack setStackSize(ItemStack stack, int size) {
         return setStackSize(stack, size, false);
     }
 
-    public static ItemStack setStackSize(ItemStack stack, int size, boolean containerOnEmpty){
-        if(size <= 0){
+    public static ItemStack setStackSize(ItemStack stack, int size, boolean containerOnEmpty) {
+        if (size <= 0) {
             return isValid(stack) && containerOnEmpty ? stack.getItem().getContainerItem(stack) : getNull();
         }
         stack.setCount(size);
         return stack;
     }
 
-    public static ItemStack addStackSize(ItemStack stack, int size){
+    public static ItemStack addStackSize(ItemStack stack, int size) {
         return addStackSize(stack, size, false);
     }
 
-    public static ItemStack addStackSize(ItemStack stack, int size, boolean containerOnEmpty){
-        return setStackSize(stack, getStackSize(stack)+size, containerOnEmpty);
+    public static ItemStack addStackSize(ItemStack stack, int size, boolean containerOnEmpty) {
+        return setStackSize(stack, getStackSize(stack) + size, containerOnEmpty);
     }
 
-    public static boolean isIInvEmpty(NonNullList<ItemStack> slots){
+    public static boolean isIInvEmpty(NonNullList<ItemStack> slots) {
         return slots.stream().noneMatch(ItemStackUtils::isValid);
     }
 
-    public static NonNullList<ItemStack> createSlots(int size){
+    public static NonNullList<ItemStack> createSlots(int size) {
         return NonNullList.withSize(size, getNull());
+    }
+
+    public static NonNullList<ItemStack> getItemStacks(Item... items) {
+        NonNullList<ItemStack> list = NonNullList.create();
+        Arrays.stream(items).map(ItemStackUtils::getItemStack).forEachOrdered(list::add);
+        return list;
+    }
+
+    public static NonNullList<ItemStack> getItemStacks(ItemStack... itemStacks) {
+        NonNullList<ItemStack> list = NonNullList.create();
+        Collections.addAll(list, itemStacks);
+        return list;
     }
 }

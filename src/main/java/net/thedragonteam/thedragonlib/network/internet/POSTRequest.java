@@ -9,64 +9,48 @@ import java.net.URL;
 
 public class POSTRequest {
 	
-	public String target = "";
-	public String params = "";
-	public String useragent = "";
+	public String target;
+	public String params;
+	public String useragent;
 	
 	public POSTRequest(){
-		
 		target = "";
 		params = "";
 		useragent = "";
-		
 	}
 	
 	public POSTRequest(String tar){
-		
 		target = tar;
 		params = "";
-		useragent = "TheDragonCore";
-		
+		useragent = "TheDragonLib";
 	}
 	
 	public POSTRequest(String tar, String par){
-		
 		target = tar;
 		params = par;
-		useragent = "TheDragonCore";
-		
+		useragent = "TheDragonLib";
 	}
 	
 	public POSTRequest(String tar, String par, String agent){
-		
 		target = tar;
 		params = par;
 		useragent = agent;
-		
 	}
 	
 	public void  setTarget(String tar){
-	
 		target = tar;
-	
 	}
 	
 	public void setParameters(String par){
-		
 		params = par;
-		
 	}
 	
 	public void addParameter(String par){
-		
 		params = params + "&" + par;
-		
 	}
 	
 	public void setUserAgent(String agent){
-		
 		useragent = agent;
-		
 	}
 	
 	public POSTResponse execute() throws IOException{
@@ -93,7 +77,7 @@ public class POSTRequest {
 		BufferedReader in = new BufferedReader(
 		        new InputStreamReader(con.getInputStream()));
 		String inputLine;
-		StringBuffer response = new StringBuffer();
+		StringBuilder response = new StringBuilder();
 
 		while ((inputLine = in.readLine()) != null) {
 			response.append(inputLine);

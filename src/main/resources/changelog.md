@@ -1,22 +1,41 @@
-**1.11.2-2.2.3:**
+## 1.12.2-5.3.0
 
-Quick Fix:
+* Simplified a lot of code, made some parts smoother.
+* Remade the Feature system to use Resource Location instead of the classical String registry names.
+* Introduced interfaces allowing easier implementation for models & rarities for items & blocks
 
-* Fixed server crash on startup with A+
+## 1.12.2-5.2.0
 
-**1.11.2-2.2.2:**
+**Minecraft**: 
 
-Quick Fix:
+* **Updated to 1.12.2**
 
-* Fixed server crash on startup
+## 1.12.1-5.1.0
 
-**1.11.2-2.2.1:**
+**Features Added**:
 
-Quick Fix:
+* A very minor but essential addition/tweak to the ItemStackUtils' methods
 
-* Fixed access level of some classes
+## 1.12.1-5.0.0
 
-**1.11.2-2.2.0:**
+**Bugs Fixed**:
 
-* Added more utilities, fixed some crashes, and some bugs, 
-added a way of adding achievements as mods that depend on thedragonlib
+* Crash when launching a server
+
+**Features Added/Changed/Removed**:
+
+* Improved some of the utilities
+
+* Removed the sync wrappers
+
+* Removed unused features, such as TDLBlocks, Tiles, SyncObjects, and more...
+
+## 1.12.1-4.2.0
+
+**Features & Dependencies Changed**:
+
+* **Requires forge 14.22.0.2459 or later**
+
+**Minecraft**:
+
+* **Updated to minecraft 1.12.1**

@@ -8,11 +8,10 @@
     "url": "",
     "updateUrl": "",
     "authorList": [
-      "Moritz30",
-      "sokratis12GR"
+      "sokratis12GR and Moritz30 in association with TheDragonTeam."
     ],
     "credits": "",
-    "logoFile": "",
+    "logoFile": "assets/thedragonlib/logo.png",
     "screenshots": [],
     "dependencies": []
   }
