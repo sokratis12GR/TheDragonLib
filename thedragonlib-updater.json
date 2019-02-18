@@ -1,0 +1,10 @@
+{
+  "homepage": "https://minecraft.curseforge.com/projects/thedragonlib/files",
+  "promos": {
+    "1.13.2-latest": "1.13.2-6.0.0",
+    "1.13.2-recommended": "1.13.2-6.0.0"
+  },
+  "1.13.2": {
+    "1.13.2-6.0.0": "Updated to MC 1.13.2"
+  }
+}
