@@ -1,0 +1,25 @@
+
+modLoader="javafml" #mandatory
+loaderVersion="[39,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+license="GNU Lesser General Public License v3.0"
+issueTrackerURL="https://github.com/sokratis12GR/TheDragonLib/issues" #optional
+[[mods]] #mandatory
+modId="thedragonlib" #mandatory
+version="${file.jarVersion}" #mandatory
+displayName="TheDragonLib" #mandatory
+updateJSONURL="https://raw.githubusercontent.com/sokratis12GR/TheDragonLib/1.18/thedragonlib-updater.json" #optional
+displayURL="https://www.curseforge.com/minecraft/mc-mods/thedragonlib" #optional
+authors="SoFoDev" #optional
+description='''A library for most of SoFoDev's mods'''
+[[dependencies.thedragonlib]] #optional
+    modId="forge" #mandatory
+    mandatory=true #mandatory
+    versionRange="[39,)" #mandatory
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.thedragonlib]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.18.1,1.19)"
+    ordering="NONE"
+    side="BOTH"
