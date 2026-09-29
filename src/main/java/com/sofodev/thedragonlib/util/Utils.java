@@ -124,10 +124,10 @@ public class Utils {
     }
 
     public static ResourceLocation toRL(String registryName) {
-        return new ResourceLocation(registryName);
+        return ResourceLocation.parse(registryName);
     }
 
     public static ResourceLocation toRL(String modid, String name) {
-        return new ResourceLocation(modid, name);
+        return ResourceLocation.fromNamespaceAndPath(modid, name);
     }
 }

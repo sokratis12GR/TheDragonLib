@@ -16,7 +16,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class ParticlesHelper {
 
     public static void spawnParticle(Entity entity, ParticleOptions particleType, double xCoord, double yCoord, double zCoord, double xSpeed, double ySpeed, double zSpeed) {
-        entity.getLevel().addParticle(particleType, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed);
+        entity.level().addParticle(particleType, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed);
     }
 
     public static void spawnParticle(Entity entity, ParticleOptions particleType, double xCoord, double yCoord, double zCoord) {
@@ -56,7 +56,7 @@ public class ParticlesHelper {
     }
 
     public ParticleType<?> getParticle(String name) {
-        return ForgeRegistries.PARTICLE_TYPES.getValue(new ResourceLocation(name));
+        return ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(name));
     }
 
     public enum Pos {

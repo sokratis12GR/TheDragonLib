@@ -134,7 +134,7 @@ public class Vec3D {
     }
 
     public BlockPos getPos() {
-        return new BlockPos(x, y, z);
+        return BlockPos.containing(x, y, z);
     }
 
     @Override

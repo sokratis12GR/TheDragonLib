@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
 public class ItemStackUtils {
 
     public static Item getItemByName(String name) {
-        return ForgeRegistries.ITEMS.getValue(new ResourceLocation(name));
+        return ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(name));
     }
 
     public static ItemStack getTICItemStack(String name, int meta) {
@@ -113,7 +113,7 @@ public class ItemStackUtils {
 
     public static ItemStack setStackSize(ItemStack stack, int size, boolean containerOnEmpty) {
         if (size <= 0) {
-            return isValid(stack) && containerOnEmpty ? stack.getItem().getContainerItem(stack) : getNull();
+            return isValid(stack) && containerOnEmpty ? stack.getCraftingRemainingItem() : getNull();
         }
         stack.setCount(size);
         return stack;

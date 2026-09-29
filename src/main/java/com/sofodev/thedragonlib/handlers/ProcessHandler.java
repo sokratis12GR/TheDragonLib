@@ -2,7 +2,7 @@ package com.sofodev.thedragonlib.handlers;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class ProcessHandler {
     }
 
     @SubscribeEvent
-    public void onWorldClose(WorldEvent.Unload event) {
+    public void onWorldClose(LevelEvent.Unload event) {
         processes.clear();
         newProcesses.clear();
     }

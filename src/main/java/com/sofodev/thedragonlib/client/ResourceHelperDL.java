@@ -21,12 +21,12 @@ public class ResourceHelperDL {
     }
 
     public static ResourceLocation getResource(String rs) {
-        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, new ResourceLocation(RESOURCE_PREFIX + rs));
+        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, ResourceLocation.parse(RESOURCE_PREFIX + rs));
         return cachedResources.get(rs);
     }
 
     public static ResourceLocation getResourceRAW(String rs) {
-        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, new ResourceLocation(rs));
+        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, ResourceLocation.parse(rs));
         return cachedResources.get(rs);
     }
 
