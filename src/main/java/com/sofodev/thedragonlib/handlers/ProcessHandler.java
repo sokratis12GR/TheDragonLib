@@ -1,16 +1,16 @@
 package com.sofodev.thedragonlib.handlers;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.sofodev.thedragonlib.TheDragonLib;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = TheDragonLib.MODID)
+@EventBusSubscriber(modid = TheDragonLib.MODID)
 public class ProcessHandler {
 
     private static List<IProcess> processes = new ArrayList<>();
@@ -24,7 +24,7 @@ public class ProcessHandler {
     }
 
     @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent.Pre event) {
+    public static void onServerTick(ServerTickEvent.Pre event) {
         Iterator<IProcess> i = processes.iterator();
 
         while (i.hasNext()) {

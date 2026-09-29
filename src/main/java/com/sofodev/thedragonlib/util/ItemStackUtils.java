@@ -9,7 +9,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
 public class ItemStackUtils {
 
     public static Item getItemByName(String name) {
-        return ForgeRegistries.ITEMS.getValue(Identifier.parse(name));
+        return BuiltInRegistries.ITEM.getValue(Identifier.parse(name));
     }
 
     public static ItemStack getTICItemStack(String name, int meta) {

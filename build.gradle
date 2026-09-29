@@ -1,17 +1,20 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'idea'
     id 'eclipse'
     id 'maven-publish'
-    id 'net.minecraftforge.accesstransformers' version '2.0.0'
-    id 'net.minecraftforge.gradle' version '[7.0.17,8)'
+    id 'net.neoforged.moddev' version '2.0.147'
 }
 
 version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = mod_id
+    archivesName = mod_name
+}
+
+tasks.named('jar', Jar).configure {
+    archiveFileName = "${mod_name}-${minecraft_version}-${mod_version}-neo.jar"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
@@ -20,84 +23,59 @@ sourceSets.main.resources {
     srcDir 'src/generated/resources'
 }
 
-minecraft {
+neoForge {
+    version = project.neo_version
 
     runs {
-        configureEach {
-            workingDir = layout.projectDirectory.dir('run')
-            systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
-            systemProperty 'forge.enabledGameTestNamespaces', mod_id
+        client {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
-
-        register('client')
-
-        register('server') {
-            args '--nogui'
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
-
-        register('gameTestServer')
-
-        register('data') {
-            workingDir = layout.projectDirectory.dir('run-data')
-            args '--mod', mod_id,
-                    '--all',
-                    '--output', layout.projectDirectory.dir('src/generated/resources'),
-                    '--existing', layout.projectDirectory.dir('src/main/resources')
+        gameTestServer {
+            type = 'gameTestServer'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
+        data {
+            clientData()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').absolutePath, '--existing', file('src/main/resources/').absolutePath
+        }
+    }
+
+    mods {
+        "${mod_id}" { sourceSet(sourceSets.main) }
     }
 }
 
-repositories {
-    minecraft.mavenizer(it)
-    maven fg.forgeMaven
-    maven fg.minecraftLibsMaven
-    mavenCentral()
-}
-
-dependencies {
-    implementation minecraft.dependency(
-            "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    )
-
-    annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.5'
-}
+repositories { mavenCentral() }
 
 tasks.named('processResources', ProcessResources).configure {
     def replaceProperties = [
-            minecraft_version      : minecraft_version,
-            minecraft_version_range: minecraft_version_range,
-            forge_version          : forge_version,
-            forge_version_range    : forge_version_range,
-            loader_version_range   : loader_version_range,
-            mod_id                 : mod_id,
-            mod_name               : mod_name,
-            mod_license            : mod_license,
-            mod_version            : mod_version,
-            mod_authors            : mod_authors,
-            mod_description        : mod_description
+        minecraft_version: minecraft_version,
+        minecraft_version_range: minecraft_version_range,
+        neo_version: neo_version,
+        neo_version_range: neo_version_range,
+        loader_version_range: loader_version_range,
+        mod_id: mod_id,
+        mod_name: mod_name,
+        mod_license: mod_license,
+        mod_version: mod_version,
+        mod_authors: mod_authors,
+        mod_description: mod_description
     ]
-
     inputs.properties replaceProperties
-
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
-        expand replaceProperties
-    }
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) { expand replaceProperties }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
+        mavenJava(MavenPublication) { from components.java }
     }
-
-    repositories {
-        maven {
-            url = layout.buildDirectory.dir('repo')
-        }
-    }
+    repositories { maven { url = layout.buildDirectory.dir('repo') } }
 }

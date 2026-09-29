@@ -3,8 +3,8 @@ package com.sofodev.thedragonlib.util;
 
 
 import net.minecraft.client.resources.language.I18n;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.ArrayList;
@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
-@OnlyIn(Dist.CLIENT)
 public class TextHelper {
     public static String getFormattedText(String string) {
         return string.replaceAll("&", "\u00A7");

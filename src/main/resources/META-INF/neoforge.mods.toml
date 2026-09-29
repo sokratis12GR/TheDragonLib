@@ -1,0 +1,24 @@
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
+issueTrackerURL = "https://github.com/sokratis12GR/TheDragonLib/issues"
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+updateJSONURL = "https://raw.githubusercontent.com/sokratis12GR/TheDragonLib/26.1.2/thedragonlib-updater.json"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/thedragonlib"
+authors = "${mod_authors}"
+description = '''${mod_description}'''
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+mandatory = true
+versionRange = "${neo_version_range}"
+ordering = "NONE"
+side = "BOTH"
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+mandatory = true
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"

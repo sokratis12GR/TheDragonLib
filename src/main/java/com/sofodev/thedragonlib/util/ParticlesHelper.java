@@ -6,13 +6,10 @@ package com.sofodev.thedragonlib.util;
 
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
 
-@OnlyIn(Dist.CLIENT)
 public class ParticlesHelper {
 
     public static void spawnParticle(Entity entity, ParticleOptions particleType, double xCoord, double yCoord, double zCoord, double xSpeed, double ySpeed, double zSpeed) {
@@ -56,7 +53,7 @@ public class ParticlesHelper {
     }
 
     public ParticleType<?> getParticle(String name) {
-        return ForgeRegistries.PARTICLE_TYPES.getValue(Identifier.parse(name));
+        return BuiltInRegistries.PARTICLE_TYPE.getValue(Identifier.parse(name));
     }
 
     public enum Pos {
