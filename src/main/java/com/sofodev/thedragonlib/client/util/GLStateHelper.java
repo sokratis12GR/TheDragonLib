@@ -1,6 +1,5 @@
 package com.sofodev.thedragonlib.client.util;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.sofodev.thedragonlib.util.LogHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,11 +14,11 @@ public class GLStateHelper {
         if (lastBlendState != -1) {
             LogHelper.bigError("[GLStateHelper] Attempt to push twice");
         } else {
-            lastBlendState = GlStateManager._getInteger(GL11.GL_BLEND);
+            lastBlendState = GL11.glIsEnabled(GL11.GL_BLEND) ? 1 : 0;
             if (enable) {
-                GlStateManager._enableBlend();
+                GL11.glEnable(GL11.GL_BLEND);
             } else {
-                GlStateManager._disableBlend();
+                GL11.glDisable(GL11.GL_BLEND);
             }
         }
     }
@@ -31,10 +30,10 @@ public class GLStateHelper {
                 break;
             default:
                 if (lastBlendState == 1) {
-                    GlStateManager._enableBlend();
+                    GL11.glEnable(GL11.GL_BLEND);
 
                 } else {
-                    GlStateManager._disableBlend();
+                    GL11.glDisable(GL11.GL_BLEND);
 
                 }
                 lastBlendState = -1;
@@ -48,11 +47,11 @@ public class GLStateHelper {
         if (lastAlphaState != -1) {
             LogHelper.bigError("[GLStateHelper] Attempt to push twice");
         } else {
-            lastAlphaState = GlStateManager._getInteger(GL11.GL_ALPHA);
+            lastAlphaState = GL11.glIsEnabled(GL11.GL_DEPTH_TEST) ? 1 : 0;
             if (enable) {
-                GlStateManager._enableDepthTest();
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
             } else {
-                GlStateManager._disableDepthTest();
+                GL11.glDisable(GL11.GL_DEPTH_TEST);
             }
         }
     }
@@ -62,9 +61,9 @@ public class GLStateHelper {
             LogHelper.bigError("[GLStateHelper] Attempt to pop before pushing");
         } else {
             if (lastAlphaState == 1) {
-                GlStateManager._enableDepthTest();
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
             } else {
-                GlStateManager._disableDepthTest();
+                GL11.glDisable(GL11.GL_DEPTH_TEST);
             }
             lastAlphaState = -1;
         }
@@ -76,11 +75,11 @@ public class GLStateHelper {
         if (lastDepthState != -1) {
             LogHelper.bigError("[GLStateHelper] Attempt to push twice");
         } else {
-            lastDepthState = GlStateManager._getInteger(GL11.GL_DEPTH);
+            lastDepthState = GL11.glIsEnabled(GL11.GL_DEPTH_TEST) ? 1 : 0;
             if (enable) {
-                GlStateManager._enableDepthTest();
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
             } else {
-                GlStateManager._disableDepthTest();
+                GL11.glDisable(GL11.GL_DEPTH_TEST);
             }
         }
     }
@@ -90,9 +89,9 @@ public class GLStateHelper {
             LogHelper.bigError("[GLStateHelper] Attempt to pop before pushing");
         } else {
             if (lastDepthState == 1) {
-                GlStateManager._enableDepthTest();
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
             } else {
-                GlStateManager._disableDepthTest();
+                GL11.glDisable(GL11.GL_DEPTH_TEST);
             }
             lastDepthState = -1;
         }

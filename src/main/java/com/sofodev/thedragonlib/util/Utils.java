@@ -2,7 +2,7 @@ package com.sofodev.thedragonlib.util;
 
 import com.sofodev.thedragonlib.lib.Vec3D;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 
 public class Utils {
@@ -123,11 +123,11 @@ public class Utils {
         return (int) d;
     }
 
-    public static ResourceLocation toRL(String registryName) {
-        return ResourceLocation.parse(registryName);
+    public static Identifier toRL(String registryName) {
+        return Identifier.parse(registryName);
     }
 
-    public static ResourceLocation toRL(String modid, String name) {
-        return ResourceLocation.fromNamespaceAndPath(modid, name);
+    public static Identifier toRL(String modid, String name) {
+        return Identifier.fromNamespaceAndPath(modid, name);
     }
 }

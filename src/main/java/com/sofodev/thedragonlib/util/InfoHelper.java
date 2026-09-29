@@ -85,13 +85,13 @@ public class InfoHelper {
     }
 
     public static boolean isShiftKeyDown() {
-        return GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT) ||
-                GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_SHIFT);
+        return GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_LEFT_SHIFT) ||
+                GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_RIGHT_SHIFT);
     }
 
     public static boolean isCtrlKeyDown() {
-        return GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_CONTROL) ||
-                GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_CONTROL);
+        return GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_LEFT_CONTROL) ||
+                GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_RIGHT_CONTROL);
     }
 
     public static boolean holdShiftForDetails(List<String> list, boolean inverted) {

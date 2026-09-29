@@ -1,10 +1,7 @@
 package com.sofodev.thedragonlib.client;
 
 import com.sofodev.thedragonlib.TheDragonLib;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,26 +9,16 @@ import java.util.Map;
 public class ResourceHelperDL {
 
     public static final String RESOURCE_PREFIX = TheDragonLib.MODID + ":";
-    private static ResourceLocation vanillaParticles;
-    private static Map<String, ResourceLocation> cachedResources = new HashMap<>();
+    private static Identifier vanillaParticles;
+    private static Map<String, Identifier> cachedResources = new HashMap<>();
 
-    @OnlyIn(Dist.CLIENT)
-    public static void bindTexture(ResourceLocation texture) {
-        Minecraft.getInstance().textureManager.bindForSetup(texture);
-    }
-
-    public static ResourceLocation getResource(String rs) {
-        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, ResourceLocation.parse(RESOURCE_PREFIX + rs));
+    public static Identifier getResource(String rs) {
+        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, Identifier.parse(RESOURCE_PREFIX + rs));
         return cachedResources.get(rs);
     }
 
-    public static ResourceLocation getResourceRAW(String rs) {
-        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, ResourceLocation.parse(rs));
+    public static Identifier getResourceRAW(String rs) {
+        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, Identifier.parse(rs));
         return cachedResources.get(rs);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static void bindTexture(String rs) {
-        bindTexture(getResource(rs));
     }
 }

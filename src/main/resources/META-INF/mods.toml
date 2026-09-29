@@ -1,24 +1,24 @@
-modLoader = "javafml" #mandatory
-loaderVersion = "[52,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
-license = "GNU Lesser General Public License v3.0"
-issueTrackerURL = "https://github.com/sokratis12GR/TheDragonLib/issues" #optional
-[[mods]] #mandatory
-modId = "thedragonlib" #mandatory
-version = "${file.jarVersion}" #mandatory
-displayName = "TheDragonLib" #mandatory
-updateJSONURL = "https://raw.githubusercontent.com/sokratis12GR/TheDragonLib/1.21.1/thedragonlib-updater.json" #optional
-displayURL = "https://www.curseforge.com/minecraft/mc-mods/thedragonlib" #optional
-authors = "SoFoDev" #optional
-description = '''A library for most of SoFoDev's mods'''
-[[dependencies.thedragonlib]] #optional
-modId = "forge" #mandatory
-mandatory = true #mandatory
-versionRange = "[52,)" #mandatory
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
+issueTrackerURL = "https://github.com/sokratis12GR/TheDragonLib/issues"
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+updateJSONURL = "https://raw.githubusercontent.com/sokratis12GR/TheDragonLib/26.1.2/thedragonlib-updater.json"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/thedragonlib"
+authors = "${mod_authors}"
+description = '''${mod_description}'''
+[[dependencies.${mod_id}]]
+modId = "forge"
+mandatory = true
+versionRange = "${forge_version_range}"
 ordering = "NONE"
 side = "BOTH"
-[[dependencies.thedragonlib]]
+[[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.21.1,1.21.2)"
+versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
