@@ -10,6 +10,7 @@ updateJSONURL = "https://sokratis.space/thedragonlib/26.1/update.json"
 displayURL = "https://www.curseforge.com/minecraft/mc-mods/thedragonlib"
 authors = "${mod_authors}"
 description = '''${mod_description}'''
+logoFile = "thedragonlib.png"
 [[dependencies.${mod_id}]]
 modId = "neoforge"
 mandatory = true

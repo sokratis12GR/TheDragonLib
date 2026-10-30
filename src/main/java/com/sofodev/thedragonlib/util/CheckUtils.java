@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Objects;
 
 /**
- * @author Sokratis Fotkatzikis - TheDragonTeam
+ * @author Sokratis Fotkatzikis
  */
 public class CheckUtils {
 

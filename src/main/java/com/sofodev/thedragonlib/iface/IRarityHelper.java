@@ -8,7 +8,7 @@ import java.util.Locale;
 
 
 /**
- * @author Sokratis Fotkatzikis - TheDragonTeam
+ * @author Sokratis Fotkatzikis
  **/
 public interface IRarityHelper {
 
