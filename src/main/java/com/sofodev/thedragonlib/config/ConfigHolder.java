@@ -18,4 +18,15 @@ public record ConfigHolder<T>(T values, ModConfigSpec spec) {
         container.registerConfig(type, spec, fileName);
         return this;
     }
+
+    public boolean isLoaded() {
+        return spec.isLoaded();
+    }
+
+    /**
+     * @see ConfigHelper#getOrDefault(ModConfigSpec, ModConfigSpec.ConfigValue, Object)
+     */
+    public <V> V getOrDefault(ModConfigSpec.ConfigValue<V> value, V fallback) {
+        return ConfigHelper.getOrDefault(spec, value, fallback);
+    }
 }

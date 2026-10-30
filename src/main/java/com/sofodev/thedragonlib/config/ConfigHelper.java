@@ -28,4 +28,15 @@ public final class ConfigHelper {
     public static <T> ConfigHolder<T> buildAndRegister(ModContainer container, ModConfig.Type type, String fileName, Function<ModConfigSpec.Builder, T> factory) {
         return build(factory).register(container, type, fileName);
     }
+
+    /**
+     * Reads {@code value} if {@code spec} has actually been loaded from disk, otherwise returns
+     * {@code fallback}. Config values throw {@link IllegalStateException} when read before their
+     * spec is loaded, which happens during datagen and other contexts where no config file is
+     * ever loaded (e.g. a block's {@code isEnabled(FeatureFlagSet)} check running under the loot
+     * table provider).
+     */
+    public static <V> V getOrDefault(ModConfigSpec spec, ModConfigSpec.ConfigValue<V> value, V fallback) {
+        return spec.isLoaded() ? value.get() : fallback;
+    }
 }

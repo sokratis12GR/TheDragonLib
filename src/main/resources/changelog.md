@@ -1,3 +1,8 @@
+# 26.1.2 - 1.2.1
+
+### Fixes
+- Added `ConfigHelper.getOrDefault`/`ConfigHolder.getOrDefault` — a guard that returns a fallback instead of throwing `IllegalStateException` when a config value is read before its spec is loaded (e.g. datagen or other contexts where no config file is ever loaded, such as a block's `isEnabled(FeatureFlagSet)` check running under the loot table provider).
+
 # 26.1.2 - 1.2.0
 
 ### New Utilities
