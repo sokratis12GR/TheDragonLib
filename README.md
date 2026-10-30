@@ -57,7 +57,7 @@ And declare the dependency in `neoforge.mods.toml`:
 [[dependencies.yourmodid]]
     modId = "thedragonlib"
     type = "required"
-    versionRange = "[1.1.0,)"
+    versionRange = "[1.2.0,)"
     ordering = "NONE"
     side = "BOTH"
 ```
