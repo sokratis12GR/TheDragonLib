@@ -5,6 +5,7 @@ plugins {
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.147'
     id 'net.darkhax.curseforgegradle' version '1.3.33'
+    id 'com.modrinth.minotaur' version '2.10.0'
 }
 
 version = mod_version
@@ -73,25 +74,76 @@ repositories {
 
 tasks.named('processResources', ProcessResources).configure {
     def replaceProperties = [
-        minecraft_version: minecraft_version,
-        minecraft_version_range: minecraft_version_range,
-        neo_version: neo_version,
-        neo_version_range: neo_version_range,
-        loader_version_range: loader_version_range,
-        mod_id: mod_id, mod_name: mod_name, mod_license: mod_license,
-        mod_version: mod_version, mod_authors: mod_authors, mod_description: mod_description
+            minecraft_version: minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version: neo_version,
+            neo_version_range: neo_version_range,
+            loader_version_range: loader_version_range,
+            mod_id: mod_id,
+            mod_name: mod_name,
+            mod_license: mod_license,
+            mod_version: mod_version,
+            mod_authors: mod_authors,
+            mod_description: mod_description
     ]
+
     inputs.properties replaceProperties
-    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) { expand replaceProperties }
+
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties
+    }
 }
 
-tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
 
 publishing {
     publications {
-        mavenJava(MavenPublication) { from components.java }
+        mavenJava(MavenPublication) {
+            from components.java
+        }
     }
-    repositories { maven { url = layout.buildDirectory.dir('repo') } }
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('repo')
+        }
+    }
+}
+
+
+def releaseName = "${mod_name} ${mod_version} for NeoForge ${minecraft_version}"
+
+def changelogFile = file('src/main/resources/changelog.md')
+def changelogText = changelogFile.exists()
+        ? changelogFile.getText('UTF-8')
+        : "${mod_name} ${mod_version} for Minecraft ${minecraft_version}"
+
+
+modrinth {
+    token = providers.gradleProperty('modrinth_api_token')
+            .orElse(providers.environmentVariable('MODRINTH_TOKEN')).orNull
+
+    projectId = providers.gradleProperty('modrinth_project_id').orNull
+
+    versionNumber = mod_version.toString()
+    versionName = releaseName
+    versionType = 'release'
+
+    uploadFile = tasks.named('jar').get()
+
+    gameVersions = [minecraft_version.toString()]
+    loaders = ['neoforge']
+
+    changelog = changelogText
+}
+
+tasks.register('publishModrinth') {
+    group = 'publishing'
+    description = "Publishes ${mod_name} to Modrinth"
+
+    dependsOn tasks.named('modrinth')
 }
 
 tasks.register('publishCurseForge', net.darkhax.curseforgegradle.TaskPublishCurseForge) {
@@ -105,16 +157,20 @@ tasks.register('publishCurseForge', net.darkhax.curseforgegradle.TaskPublishCurs
     if (projectId) {
         def mainFile = upload(projectId, tasks.named('jar').get())
 
-        mainFile.displayName = "${mod_name} ${mod_version} for NeoForge ${minecraft_version}"
+        mainFile.displayName = releaseName
         mainFile.releaseType = 'release'
-        def changelogFile = file('src/main/resources/changelog.md')
 
         mainFile.changelogType = 'markdown'
-        mainFile.changelog = changelogFile.exists()
-                ? changelogFile.getText('UTF-8')
-                : "${mod_name} ${mod_version} for Minecraft ${minecraft_version}"
+        mainFile.changelog = changelogText
 
         mainFile.addGameVersion(minecraft_version.toString())
         mainFile.addEnvironment('Client', 'Server')
     }
+}
+
+tasks.register('publishAll') {
+    group = 'publishing'
+    description = "Publishes ${mod_name} to CurseForge and Modrinth"
+
+    dependsOn 'publishCurseForge', 'publishModrinth'
 }
