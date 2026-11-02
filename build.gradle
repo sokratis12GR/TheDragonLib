@@ -5,6 +5,8 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.accesstransformers' version '2.0.0'
     id 'net.minecraftforge.gradle' version '[7.0.17,8)'
+    id 'net.darkhax.curseforgegradle' version '1.3.33'
+    id 'com.modrinth.minotaur' version '2.10.0'
 }
 
 version = mod_version
@@ -100,4 +102,66 @@ publishing {
             url = layout.buildDirectory.dir('repo')
         }
     }
+}
+
+def releaseName = "${mod_name} ${mod_version} for Forge ${minecraft_version}"
+
+def changelogFile = file('src/main/resources/changelog.md')
+def changelogText = changelogFile.exists()
+        ? changelogFile.getText('UTF-8')
+        : "${mod_name} ${mod_version} for Minecraft ${minecraft_version}"
+
+
+modrinth {
+    token = providers.gradleProperty('modrinth_api_token')
+            .orElse(providers.environmentVariable('MODRINTH_TOKEN')).orNull
+
+    projectId = providers.gradleProperty('modrinth_project_id').orNull
+
+    versionNumber = mod_version.toString()
+    versionName = releaseName
+    versionType = 'release'
+
+    uploadFile = tasks.named('jar').get()
+
+    gameVersions = [minecraft_version.toString()]
+    loaders = ['forge']
+
+    changelog = changelogText
+}
+
+tasks.register('publishModrinth') {
+    group = 'publishing'
+    description = "Publishes ${mod_name} to Modrinth"
+
+    dependsOn tasks.named('modrinth')
+}
+
+tasks.register('publishCurseForge', net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    group = 'publishing'
+    description = "Publishes ${mod_name} to CurseForge"
+
+    apiToken = providers.gradleProperty('curseforge_api_token').orNull
+
+    def projectId = providers.gradleProperty('curseforge_project_id').orNull
+
+    if (projectId) {
+        def mainFile = upload(projectId, tasks.named('jar').get())
+
+        mainFile.displayName = releaseName
+        mainFile.releaseType = 'release'
+
+        mainFile.changelogType = 'markdown'
+        mainFile.changelog = changelogText
+
+        mainFile.addGameVersion(minecraft_version.toString())
+        mainFile.addEnvironment('Client', 'Server')
+    }
+}
+
+tasks.register('publishAll') {
+    group = 'publishing'
+    description = "Publishes ${mod_name} to CurseForge and Modrinth"
+
+    dependsOn 'publishCurseForge', 'publishModrinth'
 }
