@@ -1,3 +1,7 @@
+# 26.1.2 - 1.1.1
+
+- Fixed InfoHelper crashing due to `@OnlyIn` remnants.
+
 # 26.1.2 - 1.1.0
 
 ### New Config Core
