@@ -4,9 +4,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.world.item.ItemStack;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import org.lwjgl.glfw.GLFW;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -84,13 +84,13 @@ public class InfoHelper {
     }
 
     public static boolean isShiftKeyDown() {
-        return GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_LEFT_SHIFT) ||
-                GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_RIGHT_SHIFT);
+        return InputConstants.isKeyDown(InputConstants.KEY_LSHIFT) ||
+                InputConstants.isKeyDown(InputConstants.KEY_RSHIFT);
     }
 
     public static boolean isCtrlKeyDown() {
-        return GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_LEFT_CONTROL) ||
-                GLFW.GLFW_PRESS == GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_RIGHT_CONTROL);
+        return InputConstants.isKeyDown(InputConstants.KEY_LCONTROL) ||
+                InputConstants.isKeyDown(InputConstants.KEY_RCONTROL);
     }
 
     public static boolean holdShiftForDetails(List<String> list, boolean inverted) {

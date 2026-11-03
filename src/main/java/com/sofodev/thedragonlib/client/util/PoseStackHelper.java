@@ -18,8 +18,8 @@ public final class PoseStackHelper {
     }
 
     public static void rotateItem(PoseStack pose, float xDegrees, float yDegrees, float zDegrees) {
-        pose.mulPose(Axis.XP.rotationDegrees(xDegrees));
-        pose.mulPose(Axis.YP.rotationDegrees(yDegrees));
-        pose.mulPose(Axis.ZP.rotationDegrees(zDegrees));
+        pose.rotateDegrees(Axis.XP, xDegrees);
+        pose.rotateDegrees(Axis.YP, yDegrees);
+        pose.rotateDegrees(Axis.ZP, zDegrees);
     }
 }
