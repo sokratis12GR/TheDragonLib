@@ -13,7 +13,8 @@ import java.util.Locale;
 public interface IRarityHelper {
 
     default Rarity getRarity(String enumName, int formatting) {
-        return getRarity(enumName, ChatFormatting.getById(formatting));
+        // ChatFormatting.getById was removed; colors 0-15 map to the enum's own hex code char.
+        return getRarity(enumName, ChatFormatting.getByCode(Character.forDigit(formatting, 16)));
     }
 
     default Rarity getRarity(String enumName, ChatFormatting formatting) {
@@ -40,7 +41,16 @@ public interface IRarityHelper {
     }
 
     default Rarity getRarity(String enumName, String formatting) {
-        return getRarity(enumName, ChatFormatting.getByName(formatting));
+        // ChatFormatting.getByName was removed; look the enum constant up by name instead.
+        ChatFormatting byName = null;
+        if (formatting != null) {
+            try {
+                byName = ChatFormatting.valueOf(formatting.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException ignored) {
+                // Fall through to the null case handled by getRarity(String, ChatFormatting).
+            }
+        }
+        return getRarity(enumName, byName);
     }
 
     Rarity getRarity(ItemStack stack);
