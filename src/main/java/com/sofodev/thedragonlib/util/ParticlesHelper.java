@@ -7,7 +7,7 @@ package com.sofodev.thedragonlib.util;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
 public class ParticlesHelper {
@@ -53,7 +53,7 @@ public class ParticlesHelper {
     }
 
     public ParticleType<?> getParticle(String name) {
-        return BuiltInRegistries.PARTICLE_TYPE.getValue(Identifier.parse(name));
+        return BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(name));
     }
 
     public enum Pos {

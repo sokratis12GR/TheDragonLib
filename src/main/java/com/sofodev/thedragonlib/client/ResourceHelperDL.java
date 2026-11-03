@@ -1,7 +1,7 @@
 package com.sofodev.thedragonlib.client;
 
 import com.sofodev.thedragonlib.TheDragonLib;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,16 +9,16 @@ import java.util.Map;
 public class ResourceHelperDL {
 
     public static final String RESOURCE_PREFIX = TheDragonLib.MODID + ":";
-    private static Identifier vanillaParticles;
-    private static Map<String, Identifier> cachedResources = new HashMap<>();
+    private static ResourceLocation vanillaParticles;
+    private static Map<String, ResourceLocation> cachedResources = new HashMap<>();
 
-    public static Identifier getResource(String rs) {
-        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, Identifier.parse(RESOURCE_PREFIX + rs));
+    public static ResourceLocation getResource(String rs) {
+        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, ResourceLocation.parse(RESOURCE_PREFIX + rs));
         return cachedResources.get(rs);
     }
 
-    public static Identifier getResourceRAW(String rs) {
-        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, Identifier.parse(rs));
+    public static ResourceLocation getResourceRAW(String rs) {
+        if (!cachedResources.containsKey(rs)) cachedResources.put(rs, ResourceLocation.parse(rs));
         return cachedResources.get(rs);
     }
 }

@@ -5,7 +5,7 @@
 package com.sofodev.thedragonlib.util;
 
 import net.minecraft.core.NonNullList;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
 public class ItemStackUtils {
 
     public static Item getItemByName(String name) {
-        return BuiltInRegistries.ITEM.getValue(Identifier.parse(name));
+        return BuiltInRegistries.ITEM.get(ResourceLocation.parse(name));
     }
 
     public static ItemStack getTICItemStack(String name, int meta) {
@@ -113,9 +113,8 @@ public class ItemStackUtils {
 
     public static ItemStack setStackSize(ItemStack stack, int size, boolean containerOnEmpty) {
         if (size <= 0) {
-            if (isValid(stack) && containerOnEmpty) {
-                var remainder = stack.getItem().getCraftingRemainder(stack);
-                return remainder != null ? remainder.create() : getNull();
+            if (isValid(stack) && containerOnEmpty && stack.getItem().hasCraftingRemainingItem()) {
+                return new ItemStack(stack.getItem().getCraftingRemainingItem());
             }
             return getNull();
         }

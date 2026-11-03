@@ -1,7 +1,7 @@
 package com.sofodev.thedragonlib.client.config;
 
-import com.mojang.datafixers.util.Function4;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.data.models.blockstates.PropertyDispatch.QuadFunction;
 import net.minecraft.network.chat.Component;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
@@ -37,7 +37,7 @@ public final class ConfigScreenHelper {
      * {@link EntryPicker} buttons to specific list entries).
      */
     public static void registerSectionScreen(ModContainer container,
-                                              Function4<ConfigurationScreen, ModConfig.Type, ModConfig, Component, Screen> sectionFactory) {
+                                              QuadFunction<ConfigurationScreen, ModConfig.Type, ModConfig, Component, Screen> sectionFactory) {
         register(container, (mod, parent) -> new ConfigurationScreen(mod, parent, sectionFactory));
     }
 

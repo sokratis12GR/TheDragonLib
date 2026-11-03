@@ -5,7 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -57,7 +57,7 @@ public final class RegistryCandidates {
     }
 
     public static boolean isKnown(Source source, String id) {
-        Identifier parsed = Identifier.tryParse(id);
+        ResourceLocation parsed = ResourceLocation.tryParse(id);
         if (parsed == null) return false;
         return switch (source) {
             case ENTITY, SPAWNABLE_ENTITY -> of(source).stream().anyMatch(c -> c.id().equals(parsed.toString()));
@@ -118,7 +118,7 @@ public final class RegistryCandidates {
         if (level != null) {
             ItemStack icon = icon(Items.GRASS_BLOCK);
             return sorted(level.registryAccess().lookupOrThrow(Registries.BIOME).listElementIds()
-                    .map(key -> biomeCandidate(key.identifier(), icon)));
+                    .map(key -> biomeCandidate(key.location(), icon)));
         }
         if (vanillaBiomes == null) {
             vanillaBiomes = reflectConstants(Biomes.class, icon(Items.GRASS_BLOCK), RegistryCandidates::biomeCandidate);
@@ -126,7 +126,7 @@ public final class RegistryCandidates {
         return vanillaBiomes;
     }
 
-    private static Candidate biomeCandidate(Identifier id, ItemStack icon) {
+    private static Candidate biomeCandidate(ResourceLocation id, ItemStack icon) {
         return new Candidate(id.toString(), icon,
                 Component.translatable("biome." + id.getNamespace() + "." + id.getPath()), id);
     }
@@ -136,7 +136,7 @@ public final class RegistryCandidates {
         if (level != null) {
             ItemStack icon = icon(Items.ENCHANTED_BOOK);
             return sorted(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).listElements()
-                    .map(holder -> new Candidate(holder.key().identifier().toString(), icon, holder.value().description(), holder.value())));
+                    .map(holder -> new Candidate(holder.key().location().toString(), icon, holder.value().description(), holder.value())));
         }
         if (vanillaEnchantments == null) {
             vanillaEnchantments = reflectConstants(Enchantments.class, icon(Items.ENCHANTED_BOOK), RegistryCandidates::enchantmentCandidate);
@@ -144,19 +144,19 @@ public final class RegistryCandidates {
         return vanillaEnchantments;
     }
 
-    private static Candidate enchantmentCandidate(Identifier id, ItemStack icon) {
+    private static Candidate enchantmentCandidate(ResourceLocation id, ItemStack icon) {
         return new Candidate(id.toString(), icon,
                 Component.translatable("enchantment." + id.getNamespace() + "." + id.getPath()), id);
     }
 
     /** Reflects over a vanilla constants class' static {@code ResourceKey} fields, for datapack registries with no loaded world. */
     private static List<Candidate> reflectConstants(Class<?> constantsClass, ItemStack icon,
-            java.util.function.BiFunction<Identifier, ItemStack, Candidate> factory) {
+            java.util.function.BiFunction<ResourceLocation, ItemStack, Candidate> factory) {
         List<Candidate> found = new ArrayList<>();
         for (Field field : constantsClass.getFields()) {
             if (!Modifier.isStatic(field.getModifiers()) || field.getType() != ResourceKey.class) continue;
             try {
-                found.add(factory.apply(((ResourceKey<?>) field.get(null)).identifier(), icon));
+                found.add(factory.apply(((ResourceKey<?>) field.get(null)).location(), icon));
             } catch (IllegalAccessException ignored) {
             }
         }
@@ -164,7 +164,7 @@ public final class RegistryCandidates {
     }
 
     private static ItemStack icon(Item item) {
-        return item.builtInRegistryHolder().areComponentsBound() ? new ItemStack(item) : ItemStack.EMPTY;
+        return item.builtInRegistryHolder().isBound() ? new ItemStack(item) : ItemStack.EMPTY;
     }
 
     private static List<Candidate> sorted(Stream<Candidate> candidates) {

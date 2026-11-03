@@ -1,12 +1,11 @@
 package com.sofodev.thedragonlib.client.config;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -87,7 +86,8 @@ public class EntryPickerScreen extends Screen {
     @Override
     protected void init() {
         int cx = width / 2;
-        addRenderableWidget(CycleButton.builder(Category::label, category)
+        addRenderableWidget(CycleButton.builder(Category::label)
+                .withInitialValue(category)
                 .withValues(categories)
                 .create(cx - 155, 22, 150, 20, labels.category(),
                         (button, value) -> {
@@ -167,9 +167,9 @@ public class EntryPickerScreen extends Screen {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        super.extractRenderState(graphics, mouseX, mouseY, a);
-        graphics.centeredText(font, title, width / 2, 8, COLOR_WHITE);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float a) {
+        super.render(graphics, mouseX, mouseY, a);
+        graphics.drawCenteredString(font, title, width / 2, 8, COLOR_WHITE);
         if (confirmButton != null) confirmButton.active = !selected.isEmpty();
     }
 
@@ -202,25 +202,28 @@ public class EntryPickerScreen extends Screen {
         }
 
         @Override
-        public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
+        public void render(GuiGraphics graphics, int index, int top, int left, int width, int height,
+                            int mouseX, int mouseY, boolean hovered, float a) {
             boolean added = existing.contains(candidate.id());
             boolean picked = selected.contains(candidate.id());
-            int x = getContentX();
-            int y = getContentY();
+            int x = left + 2;
+            int y = top + 2;
+            int contentWidth = width - 4;
+            int contentHeight = height - 4;
             if (picked) {
-                graphics.fill(x, y, getContentRight(), getContentBottom(), COLOR_SELECTED_BG);
+                graphics.fill(x, y, x + contentWidth, y + contentHeight, COLOR_SELECTED_BG);
             }
             if (!candidate.icon().isEmpty()) {
-                graphics.item(candidate.icon(), x + 2, y + (getContentHeight() - 16) / 2);
+                graphics.renderItem(candidate.icon(), x + 2, y + (contentHeight - 16) / 2);
             }
             int textX = x + 22;
-            graphics.text(font, candidate.name(), textX, y + 1, added ? COLOR_GRAY : picked ? COLOR_SELECTED : COLOR_WHITE);
+            graphics.drawString(font, candidate.name(), textX, y + 1, added ? COLOR_GRAY : picked ? COLOR_SELECTED : COLOR_WHITE);
             Component sub = added ? labels.alreadyAdded().apply(candidate.id()) : Component.literal(candidate.id());
-            graphics.text(font, sub, textX, y + 11, COLOR_GRAY);
+            graphics.drawString(font, sub, textX, y + 11, COLOR_GRAY);
         }
 
         @Override
-        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
             toggle(candidate);
             return true;
         }

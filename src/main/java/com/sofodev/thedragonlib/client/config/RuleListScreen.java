@@ -2,7 +2,7 @@ package com.sofodev.thedragonlib.client.config;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.Tooltip;
@@ -11,7 +11,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,13 +68,13 @@ public final class RuleListScreen extends Screen {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        super.extractRenderState(graphics, mouseX, mouseY, a);
-        graphics.centeredText(font, title, width / 2, 10, 0xFFFFFFFF);
-        graphics.centeredText(font, Component.translatable(ctx.configKey(type.key() + ".tooltip")),
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float a) {
+        super.render(graphics, mouseX, mouseY, a);
+        graphics.drawCenteredString(font, title, width / 2, 10, 0xFFFFFFFF);
+        graphics.drawCenteredString(font, Component.translatable(ctx.configKey(type.key() + ".tooltip")),
                 width / 2, 22, 0xFFA0A0A0);
         if (rules.isEmpty()) {
-            graphics.centeredText(font, Component.translatable(ctx.uiKey("empty")), width / 2, 50, 0xFFA0A0A0);
+            graphics.drawCenteredString(font, Component.translatable(ctx.uiKey("empty")), width / 2, 50, 0xFFA0A0A0);
         }
     }
 
@@ -119,27 +119,32 @@ public final class RuleListScreen extends Screen {
             }
 
             @Override
-            public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
-                int buttonY = getContentY() + (getContentHeight() - 20) / 2;
-                deleteButton.setPosition(getContentRight() - deleteButton.getWidth(), buttonY);
+            public void render(GuiGraphics graphics, int index, int top, int left, int width, int height,
+                                int mouseX, int mouseY, boolean hovered, float a) {
+                int contentX = left + 2;
+                int contentY = top + 2;
+                int contentRight = left + width - 2;
+                int contentHeight = height - 4;
+                int buttonY = contentY + (contentHeight - 20) / 2;
+                deleteButton.setPosition(contentRight - deleteButton.getWidth(), buttonY);
                 editButton.setPosition(deleteButton.getX() - 4 - editButton.getWidth(), buttonY);
-                editButton.extractRenderState(graphics, mouseX, mouseY, a);
-                deleteButton.extractRenderState(graphics, mouseX, mouseY, a);
-                int textWidth = editButton.getX() - 8 - getContentX();
+                editButton.render(graphics, mouseX, mouseY, a);
+                deleteButton.render(graphics, mouseX, mouseY, a);
+                int textWidth = editButton.getX() - 8 - contentX;
                 String summaryText = summary.getString();
-                String rawText = rules.get(index);
+                String rawText = rules.get(this.index);
                 String shownSummary = font.plainSubstrByWidth(summaryText, textWidth);
                 String shownRaw = font.plainSubstrByWidth(rawText, textWidth);
-                graphics.text(font, shownSummary, getContentX(), getContentY() + 2, error == null ? 0xFFFFFFFF : 0xFFFF5555);
-                graphics.text(font, shownRaw, getContentX(), getContentY() + 13, 0xFF808080);
+                graphics.drawString(font, shownSummary, contentX, contentY + 2, error == null ? 0xFFFFFFFF : 0xFFFF5555);
+                graphics.drawString(font, shownRaw, contentX, contentY + 13, 0xFF808080);
 
                 // Long lines get cut off, so hovering the text shows them in full.
-                boolean overText = mouseX >= getContentX() && mouseX < getContentX() + textWidth
-                        && mouseY >= getContentY() && mouseY < getContentY() + getContentHeight();
+                boolean overText = mouseX >= contentX && mouseX < contentX + textWidth
+                        && mouseY >= contentY && mouseY < contentY + contentHeight;
                 if (overText && (!shownSummary.equals(summaryText) || !shownRaw.equals(rawText))) {
                     List<FormattedCharSequence> lines = new ArrayList<>(font.split(summary, 250));
                     lines.addAll(font.split(Component.literal(rawText).withStyle(ChatFormatting.GRAY), 250));
-                    graphics.setTooltipForNextFrame(lines, mouseX, mouseY);
+                    setTooltipForNextRenderPass(lines);
                 }
             }
 

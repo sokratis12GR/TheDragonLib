@@ -19,11 +19,10 @@ tasks.named('jar', Jar).configure {
     archiveFileName = "${mod_id}-${minecraft_version}-${mod_version}-neo.jar"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 sourceSets.main.resources {
-    srcDir 'src/generated/client'
-    srcDir 'src/generated/server'
+    srcDir 'src/generated/resources'
 }
 
 neoForge {
@@ -38,25 +37,18 @@ neoForge {
         server {
             server()
             programArgument '--nogui'
+            gameDirectory = file('run/server')
         }
 
         gameTestServer {
             type = "gameTestServer"
         }
 
-        clientData {
-            clientData()
+        data {
+            data()
             programArguments.addAll '--mod', mod_id,
                     '--all',
-                    '--output', file('src/generated/client').absolutePath,
-                    '--existing', file('src/main/resources').absolutePath
-        }
-
-        serverData {
-            serverData()
-            programArguments.addAll '--mod', mod_id,
-                    '--all',
-                    '--output', file('src/generated/server').absolutePath,
+                    '--output', file('src/generated/resources').absolutePath,
                     '--existing', file('src/main/resources').absolutePath
         }
     }

@@ -1,14 +1,11 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/thedragonlib",
   "promos": {
-    "26.1.2-latest": "1.2.1",
-    "26.1.2-recommended": "1.2.1"
+    "1.21.1-latest": "1.1.0",
+    "1.21.1-recommended": "1.1.0"
   },
-  "26.1.2": {
-    "26.1.2-1.0.0": "Updated to 26.1.2",
-    "1.0.0": "Updated to 26.1.2",
-    "1.1.0": "Configuration additions",
-    "1.2.0": "Added registry candidates, a rule-based config list editor, and client rendering/util helpers",
-    "1.2.1": "Added a guard against reading config values before their spec is loaded"
+  "1.21.1": {
+    "1.0.0": "Ported to 1.21.1",
+    "1.1.0": "Backported the config and api changes from 26.1.2"
   }
 }

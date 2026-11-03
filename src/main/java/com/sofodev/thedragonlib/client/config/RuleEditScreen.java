@@ -2,16 +2,15 @@ package com.sofodev.thedragonlib.client.config;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -203,30 +202,30 @@ final class RuleEditScreen extends Screen {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        super.extractRenderState(graphics, mouseX, mouseY, a);
-        graphics.centeredText(font, title, width / 2, 10, 0xFFFFFFFF);
-        graphics.centeredText(font, Component.translatable(ctx.configKey(type.key() + ".tooltip")),
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float a) {
+        super.render(graphics, mouseX, mouseY, a);
+        graphics.drawCenteredString(font, title, width / 2, 10, 0xFFFFFFFF);
+        graphics.drawCenteredString(font, Component.translatable(ctx.configKey(type.key() + ".tooltip")),
                 width / 2, 22, 0xFFA0A0A0);
         for (int i = 0; i < type.fields().size(); i++) {
             RuleType.Field field = type.fields().get(i);
             int rowY = TOP + i * ROW_HEIGHT;
             int color = i == activeField ? 0xFFFFFF55 : 0xFFE0E0E0;
-            graphics.text(font, fieldLabel(field), LABEL_X, rowY + 6, color);
+            graphics.drawString(font, fieldLabel(field), LABEL_X, rowY + 6, color);
             Component note = note(i);
             if (note != null) {
-                graphics.text(font, font.plainSubstrByWidth(note.getString(), boxes.get(i).getWidth()), BOX_X + 2, rowY + 23, 0xFF909090);
+                graphics.drawString(font, font.plainSubstrByWidth(note.getString(), boxes.get(i).getWidth()), BOX_X + 2, rowY + 23, 0xFF909090);
             }
             if (mouseX >= LABEL_X && mouseX < BOX_X && mouseY >= rowY && mouseY < rowY + 20) {
-                graphics.setTooltipForNextFrame(font.split(help(field), 200), mouseX, mouseY);
+                setTooltipForNextRenderPass(font.split(help(field), 200));
             }
         }
         Component header = activeField >= 0
                 ? Component.translatable(ctx.uiKey("matches"), fieldLabel(type.fields().get(activeField)))
                 : Component.translatable(ctx.uiKey("pickHint"));
-        graphics.text(font, header, width / 2 + 10, 40, 0xFFA0A0A0);
+        graphics.drawString(font, header, width / 2 + 10, 40, 0xFFA0A0A0);
         if (error != null) {
-            graphics.textWithWordWrap(font, Component.literal(error), LABEL_X, TOP + type.fields().size() * ROW_HEIGHT,
+            graphics.drawWordWrap(font, Component.literal(error), LABEL_X, TOP + type.fields().size() * ROW_HEIGHT,
                     width / 2 - 30, 0xFFFF5555);
         }
     }
@@ -247,13 +246,13 @@ final class RuleEditScreen extends Screen {
 
         // Vanilla puts the scrollbar just right of the rows, which here would be outside the widget and unclickable.
         @Override
-        protected int scrollBarX() {
-            return getRight() - scrollbarWidth();
+        protected int getScrollbarPosition() {
+            return getRight() - SCROLLBAR_WIDTH;
         }
 
         @Override
         public int getRowWidth() {
-            return width - scrollbarWidth() * 2 - 4;
+            return width - SCROLLBAR_WIDTH * 2 - 4;
         }
 
         final class Row extends ObjectSelectionList.Entry<Row> {
@@ -274,25 +273,28 @@ final class RuleEditScreen extends Screen {
             }
 
             @Override
-            public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
-                int y = getContentY() + 1;
-                int right = getContentX() + getContentWidth();
+            public void render(GuiGraphics graphics, int index, int top, int left, int width, int height,
+                                int mouseX, int mouseY, boolean hovered, float a) {
+                int contentX = left + 2;
+                int y = top + 2 + 1;
+                int contentWidth = width - 4;
+                int right = contentX + contentWidth;
                 int detailWidth = font.width(detail);
-                graphics.text(font, detail, right - detailWidth, y, 0xFF909090);
+                graphics.drawString(font, detail, right - detailWidth, y, 0xFF909090);
 
-                int available = getContentWidth() - (detailWidth > 0 ? detailWidth + 6 : 0);
+                int available = contentWidth - (detailWidth > 0 ? detailWidth + 6 : 0);
                 String name = font.plainSubstrByWidth(option.name(), available);
-                graphics.text(font, name, getContentX(), y, hovered ? 0xFFFFFF55 : 0xFFFFFFFF);
+                graphics.drawString(font, name, contentX, y, hovered ? 0xFFFFFF55 : 0xFFFFFFFF);
                 if (!option.id().equals(option.name())) {
-                    int idX = getContentX() + font.width(name) + 6;
-                    String id = font.plainSubstrByWidth(option.id(), available - (idX - getContentX()));
-                    graphics.text(font, id, idX, y, 0xFF808080);
+                    int idX = contentX + font.width(name) + 6;
+                    String id = font.plainSubstrByWidth(option.id(), available - (idX - contentX));
+                    graphics.drawString(font, id, idX, y, 0xFF808080);
                 }
-                if (hovered && help != null) graphics.setTooltipForNextFrame(font.split(help, 200), mouseX, mouseY);
+                if (hovered && help != null) setTooltipForNextRenderPass(font.split(help, 200));
             }
 
             @Override
-            public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+            public boolean mouseClicked(double mouseX, double mouseY, int button) {
                 pick(option);
                 return true;
             }
