@@ -1,3 +1,19 @@
+# 26.1.2 - 1.3.0
+
+### Rule Editor
+- Added `client.config.RuleFormat` — how a config line maps to the fields of a `RuleType`. `RuleFormat.PIPE` is the previous positional format; mods can now edit other syntaxes (prefixes, `key=value` pairs, lines saved in an older layout) and provide their own cross-field checks and row summaries.
+- Added the field kinds `BLOCK`, `CUSTOM` (a picker whose options the mod provides by `Field.source()`), `CHOICE` and `TOGGLE` (buttons instead of text inputs).
+- Added `client.config.RegistrySuggestionSource` — a `RuleSuggestionSource` backed by `RegistryCandidates`, which mods extend for their `CUSTOM` fields.
+- `RuleListScreen` can take an `EntryPicker` to add several entries at once next to the Add button.
+- `RuleListScreen.withDefaults` adds a Reset button.
+- `RuleSuggestionSource.Option` can have an icon, shown in the suggestion list.
+- `RuleEditScreen` rows now shrink on short screens so rules with many fields stay above the error line and buttons.
+- Long explanations under the screen titles are cut off with the full text on hover instead of running off the screen.
+- Fixed a crash in `RuleType.validate` when a min/max field pair was optional and left empty, and `ATTRIBUTE_VALUE` fields assuming the attribute is the line's second field.
+
+### Breaking Changes
+- `RuleSuggestionSource` now takes the `RuleType.Field` (and the line's current values where they matter) instead of a `Kind` and a context string.
+
 # 26.1.2 - 1.2.1
 
 ### Fixes

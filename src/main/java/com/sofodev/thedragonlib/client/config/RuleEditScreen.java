@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -34,7 +35,8 @@ final class RuleEditScreen extends Screen {
     private final RuleListContext ctx;
     private final String[] values;
     private final Consumer<String> onSave;
-    private final List<EditBox> boxes = new ArrayList<>();
+    /** One per field, null for the fields that use a button. */
+    private final EditBox[] boxes;
     private int activeField = -1;
     private @Nullable SuggestionList suggestions;
     private @Nullable Button saveButton;
@@ -46,29 +48,41 @@ final class RuleEditScreen extends Screen {
         this.type = type;
         this.ctx = ctx;
         this.values = type.split(line);
+        this.boxes = new EditBox[values.length];
         this.onSave = onSave;
+        for (int i = 0; i < values.length; i++) {
+            RuleType.Field field = type.fields().get(i);
+            if (values[i].isEmpty() && field.kind() == RuleType.Kind.CHOICE && !field.optional()) values[i] = field.choices().getFirst();
+            if (values[i].isEmpty() && field.kind() == RuleType.Kind.TOGGLE) values[i] = "false";
+        }
     }
 
     @Override
     protected void init() {
-        boxes.clear();
         int boxWidth = Math.max(80, width / 2 - BOX_X - 10);
+        int rowHeight = rowHeight();
         for (int i = 0; i < type.fields().size(); i++) {
             RuleType.Field field = type.fields().get(i);
             int index = i;
-            EditBox box = new EditBox(font, BOX_X, TOP + i * ROW_HEIGHT, boxWidth, 20, fieldLabel(field));
+            if (field.isButton()) {
+                boxes[i] = null;
+                addRenderableWidget(Button.builder(RuleType.buttonLabel(field, values[i], ctx), b -> cycle(index, b))
+                        .bounds(BOX_X, TOP + i * rowHeight, boxWidth, 20)
+                        .tooltip(Tooltip.create(help(field))).build());
+                continue;
+            }
+            EditBox box = new EditBox(font, BOX_X, TOP + i * rowHeight, boxWidth, 20, fieldLabel(field));
             box.setMaxLength(256);
             box.setValue(values[i]);
             box.setHint(hint(field));
             box.setTooltip(Tooltip.create(help(field)));
             box.setResponder(value -> {
                 values[index] = value.trim();
-                // Attribute matches depend on the chosen entity, so entity edits refresh them too.
-                boolean attributeActive = activeField >= 0 && type.fields().get(activeField).kind() == RuleType.Kind.ATTRIBUTE;
-                if (index == activeField || (index == 0 && attributeActive)) refreshSuggestions();
+                // What a picker offers can depend on the line's first field, so edits there refresh it too.
+                if (index == activeField || index == 0) refreshSuggestions();
                 revalidate();
             });
-            boxes.add(addRenderableWidget(box));
+            boxes[i] = addRenderableWidget(box);
         }
 
         int listX = width / 2 + 10;
@@ -80,10 +94,38 @@ final class RuleEditScreen extends Screen {
         addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), b -> onClose())
                 .bounds(width / 2 + 4, height - 28, 150, 20).build());
 
-        int firstPicker = activeField >= 0 ? activeField : 0;
+        int first = activeField >= 0 ? activeField : nextBox(0);
         activeField = -1;
-        setActiveField(type.fields().get(firstPicker).isPicker() ? firstPicker : -1);
-        setInitialFocus(boxes.get(firstPicker));
+        if (first >= 0) {
+            setActiveField(type.fields().get(first).isPicker() ? first : -1);
+            setInitialFocus(boxes[first]);
+        }
+        revalidate();
+    }
+
+    private int nextBox(int from) {
+        for (int i = from; i < boxes.length; i++) {
+            if (boxes[i] != null) return i;
+        }
+        return -1;
+    }
+
+    /** Rows shrink on short screens so rules with many fields stay above the error line and buttons. */
+    private int rowHeight() {
+        return Math.max(22, Math.min(ROW_HEIGHT, (height - TOP - 44) / type.fields().size()));
+    }
+
+    private void cycle(int index, Button button) {
+        RuleType.Field field = type.fields().get(index);
+        if (field.kind() == RuleType.Kind.TOGGLE) {
+            values[index] = values[index].equals("true") ? "false" : "true";
+        } else {
+            List<String> choices = new ArrayList<>(field.choices());
+            if (field.optional()) choices.add("");
+            values[index] = choices.get((choices.indexOf(values[index]) + 1) % choices.size());
+        }
+        button.setMessage(RuleType.buttonLabel(field, values[index], ctx));
+        if (index == 0) refreshSuggestions();
         revalidate();
     }
 
@@ -108,14 +150,15 @@ final class RuleEditScreen extends Screen {
     private @Nullable Component note(int index) {
         RuleType.Field field = type.fields().get(index);
         String value = values[index];
+        if (field.isButton()) return null;
         if (field.isPicker()) {
             if (value.isEmpty() || type.validateField(index, values, ctx) != null) return null;
-            String name = ctx.suggestions().displayName(field.kind(), value);
+            String name = ctx.suggestions().displayName(field, value);
             return name.equals(value) ? null : Component.literal(name);
         }
         double[] range = type.range(index, values, ctx.suggestions());
         if (field.kind() == RuleType.Kind.ATTRIBUTE_VALUE) {
-            Double defaultValue = ctx.suggestions().attributeDefault(values[0], values[1]);
+            Double defaultValue = ctx.suggestions().attributeDefault(values[0], type.attributeValue(values));
             if (defaultValue == null) return Component.translatable(ctx.uiKey("note.pickAttribute"));
             Component normal = Component.translatable(ctx.uiKey("note.default"), RuleType.format(defaultValue));
             return range == null ? normal
@@ -125,7 +168,9 @@ final class RuleEditScreen extends Screen {
     }
 
     private Component rangeText(double[] range, boolean percent) {
-        Component text = Component.translatable(ctx.uiKey("note.range"), RuleType.format(range[0]), RuleType.format(range[1]));
+        Component text = Double.isInfinite(range[1])
+                ? Component.translatable(ctx.uiKey("note.atLeast"), RuleType.format(range[0]))
+                : Component.translatable(ctx.uiKey("note.range"), RuleType.format(range[0]), RuleType.format(range[1]));
         return percent ? Component.translatable(ctx.uiKey("note.percent"), text) : text;
     }
 
@@ -138,29 +183,28 @@ final class RuleEditScreen extends Screen {
     private void refreshSuggestions() {
         if (suggestions == null) return;
         if (activeField < 0 || !type.fields().get(activeField).isPicker()) {
-            suggestions.show(RuleType.Kind.INTEGER, List.of());
+            suggestions.show(null, List.of());
             return;
         }
         RuleType.Field field = type.fields().get(activeField);
         String query = values[activeField].toLowerCase(Locale.ROOT);
-        String context = field.kind() == RuleType.Kind.ATTRIBUTE ? values[0] : null;
         List<RuleSuggestionSource.Option> matches = new ArrayList<>();
         if (field.wildcard() && "*".contains(query)) {
-            matches.add(new RuleSuggestionSource.Option("*", ctx.suggestions().anyLabel(field.kind()).getString()));
+            matches.add(new RuleSuggestionSource.Option("*", ctx.suggestions().anyLabel(field).getString()));
         }
-        for (RuleSuggestionSource.Option option : ctx.suggestions().options(field.kind(), context)) {
+        for (RuleSuggestionSource.Option option : ctx.suggestions().options(field, values)) {
             if (option.matches(query)) matches.add(option);
         }
-        suggestions.show(field.kind(), matches);
+        suggestions.show(field, matches);
     }
 
     private void pick(RuleSuggestionSource.Option option) {
         if (activeField < 0) return;
-        EditBox box = boxes.get(activeField);
+        EditBox box = boxes[activeField];
         box.setValue(option.id());
-        int next = activeField + 1;
-        if (next < boxes.size()) {
-            setFocused(boxes.get(next));
+        int next = nextBox(activeField + 1);
+        if (next >= 0) {
+            setFocused(boxes[next]);
             setActiveField(type.fields().get(next).isPicker() ? next : activeField);
         } else {
             setFocused(box);
@@ -197,7 +241,7 @@ final class RuleEditScreen extends Screen {
     public void tick() {
         // The suggestion list takes focus when clicked, so only switch fields when another box is focused.
         if (getFocused() instanceof EditBox focused) {
-            int index = boxes.indexOf(focused);
+            int index = Arrays.asList(boxes).indexOf(focused);
             if (index >= 0 && type.fields().get(index).isPicker()) setActiveField(index);
         }
     }
@@ -206,16 +250,19 @@ final class RuleEditScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
         graphics.centeredText(font, title, width / 2, 10, 0xFFFFFFFF);
-        graphics.centeredText(font, Component.translatable(ctx.configKey(type.key() + ".tooltip")),
-                width / 2, 22, 0xFFA0A0A0);
+        RuleListScreen.subtitle(graphics, font, Component.translatable(ctx.configKey(type.key() + ".tooltip")), width, 22, mouseX, mouseY);
+        int rowHeight = rowHeight();
+        // The note sits under the box; on very short screens there's no room for it.
+        int noteOffset = Math.min(23, rowHeight - font.lineHeight);
+        int boxWidth = Math.max(80, width / 2 - BOX_X - 10);
         for (int i = 0; i < type.fields().size(); i++) {
             RuleType.Field field = type.fields().get(i);
-            int rowY = TOP + i * ROW_HEIGHT;
+            int rowY = TOP + i * rowHeight;
             int color = i == activeField ? 0xFFFFFF55 : 0xFFE0E0E0;
             graphics.text(font, fieldLabel(field), LABEL_X, rowY + 6, color);
-            Component note = note(i);
+            Component note = noteOffset > 20 ? note(i) : null;
             if (note != null) {
-                graphics.text(font, font.plainSubstrByWidth(note.getString(), boxes.get(i).getWidth()), BOX_X + 2, rowY + 23, 0xFF909090);
+                graphics.text(font, font.plainSubstrByWidth(note.getString(), boxWidth), BOX_X + 2, rowY + noteOffset, 0xFF909090);
             }
             if (mouseX >= LABEL_X && mouseX < BOX_X && mouseY >= rowY && mouseY < rowY + 20) {
                 graphics.setTooltipForNextFrame(font.split(help(field), 200), mouseX, mouseY);
@@ -226,22 +273,22 @@ final class RuleEditScreen extends Screen {
                 : Component.translatable(ctx.uiKey("pickHint"));
         graphics.text(font, header, width / 2 + 10, 40, 0xFFA0A0A0);
         if (error != null) {
-            graphics.textWithWordWrap(font, Component.literal(error), LABEL_X, TOP + type.fields().size() * ROW_HEIGHT,
+            graphics.textWithWordWrap(font, Component.literal(error), LABEL_X, TOP + type.fields().size() * rowHeight,
                     width / 2 - 30, 0xFFFF5555);
         }
     }
 
     private final class SuggestionList extends ObjectSelectionList<SuggestionList.Row> {
-        private RuleType.Kind kind = RuleType.Kind.ENTITY;
+        private RuleType.@Nullable Field field;
 
         SuggestionList(Minecraft minecraft, int width, int height, int y) {
-            super(minecraft, width, height, y, 12);
+            super(minecraft, width, height, y, 20);
         }
 
-        void show(RuleType.Kind kind, List<RuleSuggestionSource.Option> options) {
-            this.kind = kind;
+        void show(RuleType.@Nullable Field field, List<RuleSuggestionSource.Option> options) {
+            this.field = field;
             clearEntries();
-            options.forEach(option -> addEntry(new Row(option)));
+            options.forEach(option -> addEntry(new Row(field, option)));
             setScrollAmount(0);
         }
 
@@ -261,10 +308,10 @@ final class RuleEditScreen extends Screen {
             private final @Nullable Component help;
             private final String detail;
 
-            Row(RuleSuggestionSource.Option option) {
+            Row(RuleType.Field field, RuleSuggestionSource.Option option) {
                 this.option = option;
-                this.help = ctx.suggestions().help(kind, option.id());
-                double[] range = kind == RuleType.Kind.ATTRIBUTE ? ctx.suggestions().attributeRange(option.id()) : null;
+                this.help = ctx.suggestions().help(field, option.id());
+                double[] range = field.kind() == RuleType.Kind.ATTRIBUTE ? ctx.suggestions().attributeRange(option.id()) : null;
                 this.detail = range == null ? "" : RuleType.format(range[0]) + " - " + RuleType.format(range[1]);
             }
 
@@ -275,18 +322,23 @@ final class RuleEditScreen extends Screen {
 
             @Override
             public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
-                int y = getContentY() + 1;
-                int right = getContentX() + getContentWidth();
+                int x = getContentX();
+                int textY = getContentY() + (getContentHeight() - font.lineHeight) / 2 + 1;
+                int right = x + getContentWidth();
+                if (!option.icon().isEmpty()) {
+                    graphics.item(option.icon(), x, getContentY());
+                    x += 20;
+                }
                 int detailWidth = font.width(detail);
-                graphics.text(font, detail, right - detailWidth, y, 0xFF909090);
+                graphics.text(font, detail, right - detailWidth, textY, 0xFF909090);
 
-                int available = getContentWidth() - (detailWidth > 0 ? detailWidth + 6 : 0);
+                int available = right - x - (detailWidth > 0 ? detailWidth + 6 : 0);
                 String name = font.plainSubstrByWidth(option.name(), available);
-                graphics.text(font, name, getContentX(), y, hovered ? 0xFFFFFF55 : 0xFFFFFFFF);
+                graphics.text(font, name, x, textY, hovered ? 0xFFFFFF55 : 0xFFFFFFFF);
                 if (!option.id().equals(option.name())) {
-                    int idX = getContentX() + font.width(name) + 6;
-                    String id = font.plainSubstrByWidth(option.id(), available - (idX - getContentX()));
-                    graphics.text(font, id, idX, y, 0xFF808080);
+                    int idX = x + font.width(name) + 6;
+                    String id = font.plainSubstrByWidth(option.id(), Math.max(0, available - (idX - x)));
+                    graphics.text(font, id, idX, textY, 0xFF808080);
                 }
                 if (hovered && help != null) graphics.setTooltipForNextFrame(font.split(help, 200), mouseX, mouseY);
             }
