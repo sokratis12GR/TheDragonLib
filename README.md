@@ -8,16 +8,13 @@
 
 ## About
 
-TheDragonLib is a shared library mod for **NeoForge**, created and maintained by **[sokratis12GR | SoFoDev](https://sokratis.space)**. It has no content of its own — it's a utility and GUI toolkit used by (most of) SoFoDev's other mods, such as **[ArmorPlus](https://www.curseforge.com/minecraft/mc-mods/armorplus)**, **Sword-Displays** and **Mob-Settings**, to avoid reimplementing the same config boilerplate, GUI pickers and small utilities in every mod.
+TheDragonLib is a shared library mod for **NeoForge**, created and maintained by **[sokratis12GR | SoFoDev](https://sokratis.space)**. It has no content of its own — it's a utility and GUI toolkit used by (most of) SoFoDev's other mods, such as **[ArmorPlus](https://www.curseforge.com/minecraft/mc-mods/armorplus)** and **Sword-Displays**, to avoid reimplementing the same config boilerplate, GUI pickers and small utilities in every mod.
 
 ### Features
 
 - **Config helpers** — build and register a `ModConfigSpec` in one call instead of repeating NeoForge's builder/register boilerplate per mod.
 - **Config screen GUI widgets** — a searchable, category-filterable entry picker (`EntryPickerScreen`), a registry-backed candidate source for it (`RegistryCandidates`), a pick-or-type-manually list screen (`PickerListScreen`), and a heavier multi-field validated rule editor (`RuleType`/`RuleListScreen`/`RuleEditScreen`) for config lists that need more than a flat list of ids.
-- **Item and null-check utilities** (`CheckUtils`, `ItemStackUtils`) — common guard checks and `ItemStack` lookups.
 - **Client rendering helpers** (`PoseStackHelper`, `RenderingUtils`, `GLStateHelper`, `ClientUtills`) — `PoseStack` transforms and limb-swing animation math for block entity/model renderers.
-- **Mod compatibility** (`ModCompat`) — a one-line `isLoaded(modId)` check.
-- **Misc utilities** — Roman numeral formatting (`RomanNumeralUtil`), logging (`LogHelper`), text/array helpers (`TextHelper`, `ArrayUtils`), and more.
 
 ## For Players
 
@@ -57,7 +54,7 @@ And declare the dependency in `neoforge.mods.toml`:
 [[dependencies.yourmodid]]
     modId = "thedragonlib"
     type = "required"
-    versionRange = "[1.2.0,)"
+    versionRange = "[1.3.0,)"
     ordering = "NONE"
     side = "BOTH"
 ```
@@ -162,24 +159,6 @@ Minecraft.getInstance().setScreen(new RuleListScreen(parent, myRule, ctx, curren
         updatedRules -> myConfig.someList.set(updatedRules)));
 ```
 
-### Item/null checks
-
-```java
-if (CheckUtils.isNotNullNorEmpty(someString) && CheckUtils.isNotEmpty(someStack)) {
-    // ...
-}
-
-ItemStack result = ItemStackUtils.getItemStack("minecraft", "diamond", 1);
-```
-
-### Checking if another mod is loaded
-
-```java
-if (ModCompat.isLoaded("tconstruct")) {
-    // register Tinkers' Construct compat
-}
-```
-
 ### Roman numerals
 
 ```java
@@ -195,13 +174,6 @@ PoseStackHelper.rotateItem(poseStack, 0, rotationDegrees, 0);
 
 // Limb-swing animation math for a ModelPart:
 RenderingUtils.swing(rightArm, 1.0f, 1.0f, 0.0f, 0.0f, limbSwing, limbSwingAmount);
-```
-
-### Logging
-
-```java
-LogHelper.info("Loaded %d entries", entries.size());
-LogHelper.errorError("Failed to load %s", exception, fileName);
 ```
 
 ## Repository
