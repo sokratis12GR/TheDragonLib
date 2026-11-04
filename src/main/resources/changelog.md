@@ -1,3 +1,8 @@
+# 26.1.2 - 1.3.1
+
+### Rule Editor
+- `RuleListScreen` rows now wrap long summaries and rule lines instead of cutting them off, each row grows to fit its text, and rows can be up to 560px wide (was 400px). The hover tooltip for cut-off text is gone.
+
 # 26.1.2 - 1.3.0
 
 ### Rule Editor

@@ -1,6 +1,5 @@
 package com.sofodev.thedragonlib.client.config;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -25,6 +24,8 @@ import java.util.function.Consumer;
  * @author Sokratis Fotkatzikis
  */
 public final class RuleListScreen extends Screen {
+    private static final int LINE_HEIGHT = 11;
+
     private final Screen parent;
     private final RuleType type;
     private final RuleListContext ctx;
@@ -135,28 +136,32 @@ public final class RuleListScreen extends Screen {
         }
 
         void add(int index) {
-            addEntry(new Row(index));
+            Row row = new Row(index);
+            addEntry(row, row.height());
         }
 
         @Override
         public int getRowWidth() {
-            return Math.min(400, width - 40);
+            return Math.min(560, width - 40);
         }
 
         final class Row extends ContainerObjectSelectionList.Entry<Row> {
-            private final int index;
             private final @Nullable String error;
-            private final Component summary;
+            private final List<FormattedCharSequence> summaryLines;
+            private final List<FormattedCharSequence> rawLines;
             private final Button editButton;
             private final Button deleteButton;
 
             Row(int index) {
-                this.index = index;
                 this.error = type.validate(rules.get(index), ctx);
                 Component description = type.describe(rules.get(index), ctx);
-                this.summary = error != null
+                Component summary = error != null
                         ? Component.translatable(ctx.uiKey("invalid"), Component.translatable(error))
                         : description != null ? description : Component.literal(rules.get(index));
+                // Row padding (4), both buttons with their gap (104) and the gap before them (8).
+                int textWidth = getRowWidth() - 116;
+                this.summaryLines = font.split(summary, textWidth);
+                this.rawLines = font.split(Component.literal(rules.get(index)), textWidth);
                 this.editButton = Button.builder(Component.translatable(ctx.uiKey("edit")),
                         b -> edit(rules.get(index), line -> rules.set(index, line))).size(50, 20).build();
                 this.deleteButton = Button.builder(Component.translatable(ctx.uiKey("delete")), b -> {
@@ -169,6 +174,11 @@ public final class RuleListScreen extends Screen {
                 }
             }
 
+            /** Tall enough for every wrapped line, and never shorter than the buttons need. */
+            int height() {
+                return Math.max(28, (summaryLines.size() + rawLines.size()) * LINE_HEIGHT + 6);
+            }
+
             @Override
             public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
                 int buttonY = getContentY() + (getContentHeight() - 20) / 2;
@@ -176,21 +186,14 @@ public final class RuleListScreen extends Screen {
                 editButton.setPosition(deleteButton.getX() - 4 - editButton.getWidth(), buttonY);
                 editButton.extractRenderState(graphics, mouseX, mouseY, a);
                 deleteButton.extractRenderState(graphics, mouseX, mouseY, a);
-                int textWidth = editButton.getX() - 8 - getContentX();
-                String summaryText = summary.getString();
-                String rawText = rules.get(index);
-                String shownSummary = font.plainSubstrByWidth(summaryText, textWidth);
-                String shownRaw = font.plainSubstrByWidth(rawText, textWidth);
-                graphics.text(font, shownSummary, getContentX(), getContentY() + 2, error == null ? 0xFFFFFFFF : 0xFFFF5555);
-                graphics.text(font, shownRaw, getContentX(), getContentY() + 13, 0xFF808080);
-
-                // Long lines get cut off, so hovering the text shows them in full.
-                boolean overText = mouseX >= getContentX() && mouseX < getContentX() + textWidth
-                        && mouseY >= getContentY() && mouseY < getContentY() + getContentHeight();
-                if (overText && (!shownSummary.equals(summaryText) || !shownRaw.equals(rawText))) {
-                    List<FormattedCharSequence> lines = new ArrayList<>(font.split(summary, 250));
-                    lines.addAll(font.split(Component.literal(rawText).withStyle(ChatFormatting.GRAY), 250));
-                    graphics.setTooltipForNextFrame(lines, mouseX, mouseY);
+                int textY = getContentY() + 2;
+                for (FormattedCharSequence line : summaryLines) {
+                    graphics.text(font, line, getContentX(), textY, error == null ? 0xFFFFFFFF : 0xFFFF5555);
+                    textY += LINE_HEIGHT;
+                }
+                for (FormattedCharSequence line : rawLines) {
+                    graphics.text(font, line, getContentX(), textY, 0xFF808080);
+                    textY += LINE_HEIGHT;
                 }
             }
 
