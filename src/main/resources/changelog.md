@@ -1,3 +1,12 @@
+# 26.1.2 - 1.4.0
+
+### Rule Editor
+- `RuleEditScreen` rows now sit in a scrolling list instead of shrinking to fit, so a rule can have any number of fields.
+- Added `Field.asInline()` — a field shares a row with the field before it when there's room, instead of always getting its own row.
+- Added `Field.withFallback(String)` — an empty value shows (and summarizes as) the fallback instead of blank.
+- Added Copy and Paste buttons that round-trip a rule line through the clipboard; pasted text is validated before it replaces the open rule's values.
+- `RuleListScreen` rows show the raw saved line as a hover tooltip instead of always rendering it below the summary when the rule is valid.
+
 # 26.1.2 - 1.3.1
 
 ### Rule Editor
