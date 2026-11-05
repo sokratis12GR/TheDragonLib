@@ -54,7 +54,7 @@ And declare the dependency in `neoforge.mods.toml`:
 [[dependencies.yourmodid]]
     modId = "thedragonlib"
     type = "required"
-    versionRange = "[1.3.0,)"
+    versionRange = "[1.4.0,)"
     ordering = "NONE"
     side = "BOTH"
 ```
@@ -158,6 +158,17 @@ RuleListContext ctx = new RuleListContext("mymod.ui.", "mymod.configuration.", m
 Minecraft.getInstance().setScreen(new RuleListScreen(parent, myRule, ctx, currentRules,
         updatedRules -> myConfig.someList.set(updatedRules)));
 ```
+
+The editor is a scrolling form, so any number of fields stays reachable. Fields can share a row, and an
+empty optional value can say what it stands for:
+
+```java
+RuleType.picker("catalyst", RuleType.Kind.ITEM, false).asOptional(),
+RuleType.integer("count", 1, 64).asOptional().asInline().withFallback("1") // next to the catalyst, shows a grey 1 while empty
+```
+
+Inline fields get their own row again on narrow screens. Your translations need the `ui` keys `copy`,
+`paste`, `copied` and `pasted` for the buttons that copy an entry as text and paste it back.
 
 ### Roman numerals
 

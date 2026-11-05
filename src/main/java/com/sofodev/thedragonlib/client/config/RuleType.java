@@ -36,11 +36,18 @@ public record RuleType(String key, List<Field> fields, int minIndex, int maxInde
     /**
      * Decimal fields with {@code percent} set are entered as 0-1 but read better as 0-100%.
      *
-     * @param source  what a {@code CUSTOM} picker lists, empty otherwise
-     * @param choices the values of a {@code CHOICE} button, empty otherwise
+     * @param source   what a {@code CUSTOM} picker lists, empty otherwise
+     * @param choices  the values of a {@code CHOICE} button, empty otherwise
+     * @param inline   shares a row with the field before it in the editor, when there's room for that
+     * @param fallback what an empty value stands for, shown in the empty input and in summaries, null if nothing
      */
     public record Field(String name, Kind kind, boolean wildcard, boolean optional, double min, double max, boolean percent,
-                        String source, List<String> choices) {
+                        String source, List<String> choices, boolean inline, @Nullable String fallback) {
+        public Field(String name, Kind kind, boolean wildcard, boolean optional, double min, double max, boolean percent,
+                     String source, List<String> choices) {
+            this(name, kind, wildcard, optional, min, max, percent, source, choices, false, null);
+        }
+
         public boolean isPicker() { return !isNumber() && !isButton(); }
 
         public boolean isNumber() { return kind == Kind.INTEGER || kind == Kind.DECIMAL || kind == Kind.ATTRIBUTE_VALUE; }
@@ -48,7 +55,15 @@ public record RuleType(String key, List<Field> fields, int minIndex, int maxInde
         public boolean isButton() { return kind == Kind.CHOICE || kind == Kind.TOGGLE; }
 
         public Field asOptional() {
-            return new Field(name, kind, wildcard, true, min, max, percent, source, choices);
+            return new Field(name, kind, wildcard, true, min, max, percent, source, choices, inline, fallback);
+        }
+
+        public Field asInline() {
+            return new Field(name, kind, wildcard, optional, min, max, percent, source, choices, true, fallback);
+        }
+
+        public Field withFallback(String fallback) {
+            return new Field(name, kind, wildcard, optional, min, max, percent, source, choices, inline, fallback);
         }
     }
 
@@ -153,10 +168,11 @@ public record RuleType(String key, List<Field> fields, int minIndex, int maxInde
         for (int i = 0; i < values.length; i++) {
             Field field = fields.get(i);
             if (field.optional() && !values[i].isEmpty()) hasOptional = true;
+            String number = values[i].isEmpty() && field.fallback() != null ? field.fallback() : values[i];
             args[i] = field.isPicker() ? ctx.suggestions().displayName(field, values[i])
                     : field.isButton() ? buttonLabel(field, values[i], ctx)
-                    : field.percent() && !values[i].isEmpty() ? format(Double.parseDouble(values[i]) * 100) + "%"
-                    : values[i];
+                    : field.percent() && !number.isEmpty() ? format(Double.parseDouble(number) * 100) + "%"
+                    : number;
         }
         return Component.translatable(ctx.uiKey("describe." + key + (hasOptional ? ".optional" : "")), args);
     }

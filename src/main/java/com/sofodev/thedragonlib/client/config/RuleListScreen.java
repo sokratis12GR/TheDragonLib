@@ -148,7 +148,9 @@ public final class RuleListScreen extends Screen {
         final class Row extends ContainerObjectSelectionList.Entry<Row> {
             private final @Nullable String error;
             private final List<FormattedCharSequence> summaryLines;
+            /** The line as saved: shown when it's invalid, otherwise on hover if the summary replaces it. */
             private final List<FormattedCharSequence> rawLines;
+            private final List<FormattedCharSequence> rawTooltip;
             private final Button editButton;
             private final Button deleteButton;
 
@@ -161,7 +163,8 @@ public final class RuleListScreen extends Screen {
                 // Row padding (4), both buttons with their gap (104) and the gap before them (8).
                 int textWidth = getRowWidth() - 116;
                 this.summaryLines = font.split(summary, textWidth);
-                this.rawLines = font.split(Component.literal(rules.get(index)), textWidth);
+                this.rawLines = error != null ? font.split(Component.literal(rules.get(index)), textWidth) : List.of();
+                this.rawTooltip = error == null && description != null ? font.split(Component.literal(rules.get(index)), 250) : List.of();
                 this.editButton = Button.builder(Component.translatable(ctx.uiKey("edit")),
                         b -> edit(rules.get(index), line -> rules.set(index, line))).size(50, 20).build();
                 this.deleteButton = Button.builder(Component.translatable(ctx.uiKey("delete")), b -> {
@@ -194,6 +197,9 @@ public final class RuleListScreen extends Screen {
                 for (FormattedCharSequence line : rawLines) {
                     graphics.text(font, line, getContentX(), textY, 0xFF808080);
                     textY += LINE_HEIGHT;
+                }
+                if (hovered && mouseX < editButton.getX() && !rawTooltip.isEmpty()) {
+                    graphics.setTooltipForNextFrame(rawTooltip, mouseX, mouseY);
                 }
             }
 
