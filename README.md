@@ -167,8 +167,17 @@ RuleType.picker("catalyst", RuleType.Kind.ITEM, false).asOptional(),
 RuleType.integer("count", 1, 64).asOptional().asInline().withFallback("1") // next to the catalyst, shows a grey 1 while empty
 ```
 
-Inline fields get their own row again on narrow screens. Your translations need the `ui` keys `copy`,
-`paste`, `copied` and `pasted` for the buttons that copy an entry as text and paste it back.
+Inline fields get their own row again on narrow screens. Number inputs and buttons are only as wide as
+their largest value, and pickers share what's left of the row. Toggles can be small icon buttons on a
+row with one label, using the `field.<name>` translation given to `withRowLabel`:
+
+```java
+RuleType.toggle("head").withIcon(InventoryMenu.EMPTY_ARMOR_SLOT_HELMET).withRowLabel("pieces"),
+RuleType.toggle("chest").withIcon(InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE).asInline()
+```
+
+Your translations need the `ui` keys `copy`, `paste`, `copied` and `pasted` for the buttons that copy an
+entry as text and paste it back.
 
 ### Roman numerals
 

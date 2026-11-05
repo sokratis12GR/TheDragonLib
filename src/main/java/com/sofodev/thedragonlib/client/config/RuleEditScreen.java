@@ -14,8 +14,11 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -34,12 +37,21 @@ final class RuleEditScreen extends Screen {
     private static final int FORM_X = 10;
     private static final int TOP = 36;
     private static final int FOOTER = 40;
-    /** With a note under the inputs, used while every row fits. */
+    /** With a note under the input, which only attribute values have. */
     private static final int TALL_ROW = 32;
     private static final int SHORT_ROW = 24;
     private static final int NOTE_OFFSET = 21;
     private static final int GAP = 4;
-    private static final int NUMBER_WIDTH = 40;
+    /** Between one field's input and the next field's label. */
+    private static final int FIELD_GAP = 12;
+    private static final int ICON_SIZE = 20;
+    /** Keeps the inputs of one and two digit numbers the same size, so the rows below each other line up. */
+    private static final int MIN_NUMBER_WIDTH = 26;
+    /** The input padding and the cursor. */
+    private static final int NUMBER_PADDING = 14;
+    private static final int BUTTON_PADDING = 12;
+    /** Sized for when a number has no maximum; a longer one still fits, it just scrolls. */
+    private static final String LONG_NUMBER = "999999";
     /** Below this every field gets its own row, even the inline ones. */
     private static final int MIN_INLINE_WIDTH = 240;
 
@@ -54,7 +66,6 @@ final class RuleEditScreen extends Screen {
     private int activeField = -1;
     /** The box to focus next tick, since a click on the suggestion list gives that list the focus after picking. */
     private int pendingFocus = -1;
-    private boolean showNotes;
     private @Nullable Rows rows;
     private @Nullable SuggestionList suggestions;
     private @Nullable Button saveButton;
@@ -115,43 +126,64 @@ final class RuleEditScreen extends Screen {
     private void buildRows(Rows list) {
         int contentWidth = list.getRowWidth() - 4;
         List<List<Integer>> groups = fieldsByRow(contentWidth >= MIN_INLINE_WIDTH);
-        // The list adds 4 to its content height.
-        showNotes = groups.size() * TALL_ROW + 4 <= list.getHeight();
         int labelColumn = 0;
         for (List<Integer> group : groups) {
-            labelColumn = Math.max(labelColumn, font.width(fieldLabel(type.fields().get(group.getFirst()))) + GAP + 2);
+            labelColumn = Math.max(labelColumn, font.width(rowLabel(type.fields().get(group.getFirst()))) + GAP + 2);
         }
         labelColumn = Math.min(labelColumn, contentWidth * 2 / 5);
 
         for (List<Integer> group : groups) {
-            int room = contentWidth - GAP * (group.size() - 1);
+            int room = contentWidth;
             int[] labelWidths = new int[group.size()];
-            int pickers = 0;
+            int[] widgetWidths = new int[group.size()];
+            int flexible = 0;
             for (int i = 0; i < group.size(); i++) {
                 RuleType.Field field = type.fields().get(group.get(i));
-                labelWidths[i] = i == 0 ? labelColumn : font.width(fieldLabel(field)) + GAP;
-                room -= labelWidths[i];
-                if (field.isPicker()) pickers++;
+                labelWidths[i] = i == 0 ? labelColumn : field.icon() != null ? 0 : font.width(fieldLabel(field)) + GAP;
+                widgetWidths[i] = fittedWidth(field);
+                room -= labelWidths[i] + widgetWidths[i] + (i == 0 ? 0 : gapBefore(field));
+                if (widgetWidths[i] == 0) flexible++;
             }
-            // Pickers need the room for their long IDs, otherwise all inputs get the same size.
-            int fixed = pickers > 0 ? (group.size() - pickers) * NUMBER_WIDTH : 0;
-            int share = (room - fixed) / (pickers > 0 ? pickers : group.size());
             List<Rows.Cell> cells = new ArrayList<>();
+            boolean tall = false;
             for (int i = 0; i < group.size(); i++) {
                 int index = group.get(i);
-                int widgetWidth = pickers > 0 && !type.fields().get(index).isPicker() ? NUMBER_WIDTH : share;
-                cells.add(new Rows.Cell(index, labelWidths[i], createWidget(index, widgetWidth)));
+                int widgetWidth = widgetWidths[i] > 0 ? widgetWidths[i] : room / flexible;
+                cells.add(new Rows.Cell(index, labelWidths[i], i + 1 < group.size() ? gapBefore(type.fields().get(group.get(i + 1))) : 0, createWidget(index, widgetWidth)));
+                tall |= type.fields().get(index).kind() == RuleType.Kind.ATTRIBUTE_VALUE;
             }
-            Rows.Row row = list.addRow(cells, showNotes ? TALL_ROW : SHORT_ROW);
+            Rows.Row row = list.addRow(cells, tall ? TALL_ROW : SHORT_ROW);
             for (int index : group) rowOfField[index] = row;
         }
     }
 
-    /** @return the field indexes of each row; inline fields join the row of the field before them if that's allowed */
+    private int gapBefore(RuleType.Field field) {
+        return field.icon() != null ? GAP : FIELD_GAP;
+    }
+
+    /** @return the width that fits everything the input can hold, 0 for pickers and attribute values which share what's left of the row */
+    private int fittedWidth(RuleType.Field field) {
+        if (field.icon() != null) return ICON_SIZE;
+        if (field.isButton()) {
+            List<String> labels = new ArrayList<>(field.kind() == RuleType.Kind.TOGGLE ? List.of("true", "false") : field.choices());
+            if (field.optional()) labels.add("");
+            int widest = 0;
+            for (String value : labels) widest = Math.max(widest, font.width(RuleType.buttonLabel(field, value, ctx)));
+            return widest + BUTTON_PADDING;
+        }
+        if (field.kind() != RuleType.Kind.INTEGER && field.kind() != RuleType.Kind.DECIMAL) return 0;
+        String decimals = field.kind() == RuleType.Kind.DECIMAL ? ".000" : "";
+        int longest = Double.isInfinite(field.max()) ? font.width(LONG_NUMBER)
+                : Math.max(font.width(RuleType.format(field.min()) + decimals), font.width(RuleType.format(field.max()) + decimals));
+        return Math.max(MIN_NUMBER_WIDTH, longest + NUMBER_PADDING);
+    }
+
+    /** @return the field indexes of each row; inline fields join the row of the field before them if that's allowed, and icons always can as they're small */
     private List<List<Integer>> fieldsByRow(boolean allowInline) {
         List<List<Integer>> groups = new ArrayList<>();
         for (int i = 0; i < type.fields().size(); i++) {
-            if (allowInline && i > 0 && type.fields().get(i).inline()) groups.getLast().add(i);
+            RuleType.Field field = type.fields().get(i);
+            if (i > 0 && field.inline() && (allowInline || field.icon() != null)) groups.getLast().add(i);
             else groups.add(new ArrayList<>(List.of(i)));
         }
         return groups;
@@ -159,6 +191,12 @@ final class RuleEditScreen extends Screen {
 
     private AbstractWidget createWidget(int index, int widgetWidth) {
         RuleType.Field field = type.fields().get(index);
+        if (field.icon() != null) {
+            boxes[index] = null;
+            IconToggle toggle = new IconToggle(index, field.icon());
+            toggle.setTooltip(Tooltip.create(tooltip(index)));
+            return toggle;
+        }
         if (field.isButton()) {
             boxes[index] = null;
             return Button.builder(RuleType.buttonLabel(field, values[index], ctx), b -> cycle(index, b))
@@ -201,7 +239,7 @@ final class RuleEditScreen extends Screen {
             if (field.optional()) choices.add("");
             values[index] = choices.get((choices.indexOf(values[index]) + 1) % choices.size());
         }
-        button.setMessage(RuleType.buttonLabel(field, values[index], ctx));
+        button.setMessage(field.icon() != null ? iconMessage(field, values[index]) : RuleType.buttonLabel(field, values[index], ctx));
         if (index == 0) refreshSuggestions();
         revalidate();
     }
@@ -210,15 +248,26 @@ final class RuleEditScreen extends Screen {
         return Component.translatable(ctx.uiKey("field." + field.name()));
     }
 
+    /** What the row of a field that comes first in it is labelled. */
+    private Component rowLabel(RuleType.Field field) {
+        return field.rowLabel() != null ? Component.translatable(ctx.uiKey("field." + field.rowLabel())) : fieldLabel(field);
+    }
+
+    /** An icon doesn't show its state as text, so it's only read out by narration. */
+    private Component iconMessage(RuleType.Field field, String value) {
+        return CommonComponents.optionStatus(fieldLabel(field), value.equals("true"));
+    }
+
     /** Per-rule-type help when one exists for this field, otherwise the shared help for that field. */
     private Component help(RuleType.Field field) {
         String specific = ctx.uiKey("help." + type.key() + "." + field.name());
         return Component.translatable(I18n.exists(specific) ? specific : ctx.uiKey("help." + field.name()));
     }
 
-    /** The help of a field, plus the allowed range for number inputs, which are often too small to show it as a note. */
+    /** The help of a field, plus the allowed range for number inputs and the name for icons, as neither shows those itself. */
     private Component tooltip(int index) {
         RuleType.Field field = type.fields().get(index);
+        if (field.icon() != null) return Component.empty().append(fieldLabel(field)).append(": ").append(help(field));
         if (field.kind() != RuleType.Kind.INTEGER && field.kind() != RuleType.Kind.DECIMAL) return help(field);
         return Component.empty().append(help(field)).append("\n").append(rangeText(new double[] {field.min(), field.max()}, field.percent()));
     }
@@ -232,25 +281,27 @@ final class RuleEditScreen extends Screen {
         return font.width(hint) > boxWidth - 8 ? Component.empty() : hint.copy().withStyle(ChatFormatting.DARK_GRAY);
     }
 
-    /** Small line under a field: the picked thing's name, or the allowed range (and the context's default for attributes). */
+    /** Small line under an attribute value: its allowed range and the context's default, which depend on the picked attribute. */
     private @Nullable Component note(int index) {
         RuleType.Field field = type.fields().get(index);
-        String value = values[index];
-        if (field.isButton()) return null;
-        if (field.isPicker()) {
-            if (value.isEmpty() || type.validateField(index, values, ctx) != null) return null;
-            String name = ctx.suggestions().displayName(field, value);
-            return name.equals(value) ? null : Component.literal(name);
-        }
+        if (field.kind() != RuleType.Kind.ATTRIBUTE_VALUE) return null;
         double[] range = type.range(index, values, ctx.suggestions());
-        if (field.kind() == RuleType.Kind.ATTRIBUTE_VALUE) {
-            Double defaultValue = ctx.suggestions().attributeDefault(values[0], type.attributeValue(values));
-            if (defaultValue == null) return Component.translatable(ctx.uiKey("note.pickAttribute"));
-            Component normal = Component.translatable(ctx.uiKey("note.default"), RuleType.format(defaultValue));
-            return range == null ? normal
-                    : Component.translatable(ctx.uiKey("note.rangeDefault"), rangeText(range, false), normal);
-        }
-        return range == null ? null : rangeText(range, field.percent());
+        Double defaultValue = ctx.suggestions().attributeDefault(values[0], type.attributeValue(values));
+        if (defaultValue == null) return Component.translatable(ctx.uiKey("note.pickAttribute"));
+        Component normal = Component.translatable(ctx.uiKey("note.default"), RuleType.format(defaultValue));
+        return range == null ? normal
+                : Component.translatable(ctx.uiKey("note.rangeDefault"), rangeText(range, false), normal);
+    }
+
+    /** The name of what a picker's ID stands for, at the end of its input; left out if it doesn't fit next to the ID. */
+    private void extractPickedName(GuiGraphicsExtractor graphics, int index, AbstractWidget box, int y) {
+        RuleType.Field field = type.fields().get(index);
+        String value = values[index];
+        if (!field.isPicker() || value.isEmpty() || type.validateField(index, values, ctx) != null) return;
+        String name = ctx.suggestions().displayName(field, value);
+        int nameWidth = font.width(name);
+        if (name.equals(value) || font.width(value) + nameWidth + NUMBER_PADDING + GAP > box.getWidth()) return;
+        graphics.text(font, name, box.getRight() - 4 - nameWidth, y + 6, 0xFF808080);
     }
 
     private Component rangeText(double[] range, boolean percent) {
@@ -399,7 +450,8 @@ final class RuleEditScreen extends Screen {
             return width - scrollbarWidth() * 2 - 4;
         }
 
-        record Cell(int field, int labelWidth, AbstractWidget widget) {
+        /** @param gapAfter the space before the next field of the row */
+        record Cell(int field, int labelWidth, int gapAfter, AbstractWidget widget) {
         }
 
         final class Row extends ContainerObjectSelectionList.Entry<Row> {
@@ -420,23 +472,23 @@ final class RuleEditScreen extends Screen {
                     RuleType.Field field = type.fields().get(index);
                     // An error names the field by its label, which isn't unique on its own.
                     int color = type.validateField(index, values, ctx) != null ? 0xFFFF5555 : index == activeField ? 0xFFFFFF55 : 0xFFE0E0E0;
-                    graphics.text(font, font.plainSubstrByWidth(fieldLabel(field).getString(), cell.labelWidth() - 2), x, y + 6, color);
-                    if (hovered && mouseX >= x && mouseX < x + cell.labelWidth() && mouseY < y + 20) {
+                    if (cell.labelWidth() > 0) {
+                        Component label = cell == cells.getFirst() ? rowLabel(field) : fieldLabel(field);
+                        graphics.text(font, font.plainSubstrByWidth(label.getString(), cell.labelWidth() - 2), x, y + 6, color);
+                    }
+                    // A shared row label says what all of its fields are about, so it isn't this field's help.
+                    if (field.rowLabel() == null && hovered && mouseX >= x && mouseX < x + cell.labelWidth() && mouseY < y + 20) {
                         graphics.setTooltipForNextFrame(font.split(tooltip(index), 200), mouseX, mouseY);
                     }
                     x += cell.labelWidth();
                     cell.widget().setPosition(x, y);
                     cell.widget().extractRenderState(graphics, mouseX, mouseY, a);
-                    Component note = showNotes ? note(index) : null;
-                    if (note != null) {
-                        String text = note.getString();
-                        int room = cell.widget().getWidth();
-                        // A cut off name still helps, a cut off range doesn't and the tooltip has it anyway.
-                        if (field.isPicker() || font.width(text) <= room) {
-                            graphics.text(font, font.plainSubstrByWidth(text, room), x + 2, y + NOTE_OFFSET, 0xFF909090);
-                        }
+                    extractPickedName(graphics, index, cell.widget(), y);
+                    Component note = note(index);
+                    if (note != null && font.width(note) <= cell.widget().getWidth()) {
+                        graphics.text(font, note, x + 2, y + NOTE_OFFSET, 0xFF909090);
                     }
-                    x += cell.widget().getWidth() + GAP;
+                    x += cell.widget().getWidth() + cell.gapAfter();
                 }
             }
 
@@ -449,6 +501,27 @@ final class RuleEditScreen extends Screen {
             public List<? extends NarratableEntry> narratables() {
                 return widgets;
             }
+        }
+    }
+
+    /** The vanilla silhouettes are dark and tinting can't brighten them, so the tile behind one shows the state: light is on. */
+    private final class IconToggle extends Button {
+        private final int index;
+        private final Identifier icon;
+
+        IconToggle(int index, Identifier icon) {
+            super(0, 0, ICON_SIZE, ICON_SIZE, iconMessage(type.fields().get(index), values[index]), b -> cycle(index, b), DEFAULT_NARRATION);
+            this.index = index;
+            this.icon = icon;
+        }
+
+        @Override
+        protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+            extractDefaultSprite(graphics);
+            int x = getX() + 2;
+            int y = getY() + 2;
+            graphics.fill(x, y, x + 16, y + 16, values[index].equals("true") ? 0xFFD8D8D8 : 0xFF2B2B2B);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, icon, x, y, 16, 16);
         }
     }
 

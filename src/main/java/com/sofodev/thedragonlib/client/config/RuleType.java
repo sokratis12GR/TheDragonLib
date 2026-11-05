@@ -2,6 +2,7 @@ package com.sofodev.thedragonlib.client.config;
 
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -40,12 +41,15 @@ public record RuleType(String key, List<Field> fields, int minIndex, int maxInde
      * @param choices  the values of a {@code CHOICE} button, empty otherwise
      * @param inline   shares a row with the field before it in the editor, when there's room for that
      * @param fallback what an empty value stands for, shown in the empty input and in summaries, null if nothing
+     * @param icon     the sprite of a {@code TOGGLE} that's a small icon button without its own label, null if it isn't
+     * @param rowLabel the {@code field.<name>} to label the row with instead of this field's own, null for its own
      */
     public record Field(String name, Kind kind, boolean wildcard, boolean optional, double min, double max, boolean percent,
-                        String source, List<String> choices, boolean inline, @Nullable String fallback) {
+                        String source, List<String> choices, boolean inline, @Nullable String fallback,
+                        @Nullable Identifier icon, @Nullable String rowLabel) {
         public Field(String name, Kind kind, boolean wildcard, boolean optional, double min, double max, boolean percent,
                      String source, List<String> choices) {
-            this(name, kind, wildcard, optional, min, max, percent, source, choices, false, null);
+            this(name, kind, wildcard, optional, min, max, percent, source, choices, false, null, null, null);
         }
 
         public boolean isPicker() { return !isNumber() && !isButton(); }
@@ -55,15 +59,23 @@ public record RuleType(String key, List<Field> fields, int minIndex, int maxInde
         public boolean isButton() { return kind == Kind.CHOICE || kind == Kind.TOGGLE; }
 
         public Field asOptional() {
-            return new Field(name, kind, wildcard, true, min, max, percent, source, choices, inline, fallback);
+            return new Field(name, kind, wildcard, true, min, max, percent, source, choices, inline, fallback, icon, rowLabel);
         }
 
         public Field asInline() {
-            return new Field(name, kind, wildcard, optional, min, max, percent, source, choices, true, fallback);
+            return new Field(name, kind, wildcard, optional, min, max, percent, source, choices, true, fallback, icon, rowLabel);
         }
 
         public Field withFallback(String fallback) {
-            return new Field(name, kind, wildcard, optional, min, max, percent, source, choices, inline, fallback);
+            return new Field(name, kind, wildcard, optional, min, max, percent, source, choices, inline, fallback, icon, rowLabel);
+        }
+
+        public Field withIcon(Identifier icon) {
+            return new Field(name, kind, wildcard, optional, min, max, percent, source, choices, inline, fallback, icon, rowLabel);
+        }
+
+        public Field withRowLabel(String rowLabel) {
+            return new Field(name, kind, wildcard, optional, min, max, percent, source, choices, inline, fallback, icon, rowLabel);
         }
     }
 

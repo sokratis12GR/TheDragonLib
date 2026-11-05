@@ -1,3 +1,12 @@
+# 26.1.2 - 1.4.1
+
+### Rule Editor
+- Number inputs and buttons are now sized to fit their largest value instead of sharing the row evenly with pickers; pickers share what's left of the row.
+- Added `Field.withIcon(Identifier)` — a `TOGGLE` field can be a small icon button without its own label.
+- Added `Field.withRowLabel(String)` — labels the row with a different `field.<name>` translation, for fields (e.g. several icon toggles) that share one label.
+- A picker's resolved name now shows inline at the end of its input when it fits, instead of always on a note line below.
+- `RuleListScreen` now sizes itself to the widest entry (between 308px and 560px) instead of always being as wide as possible, and centers row text vertically.
+
 # 26.1.2 - 1.4.0
 
 ### Rule Editor

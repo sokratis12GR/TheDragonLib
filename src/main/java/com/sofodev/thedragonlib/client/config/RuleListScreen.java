@@ -25,6 +25,11 @@ import java.util.function.Consumer;
  */
 public final class RuleListScreen extends Screen {
     private static final int LINE_HEIGHT = 11;
+    /** Lines up with the Add and Done buttons below the list. */
+    private static final int MIN_ROW_WIDTH = 308;
+    private static final int MAX_ROW_WIDTH = 560;
+    /** Row padding (4), both buttons with their gap (104) and the gap before them (8). */
+    private static final int BUTTONS_WIDTH = 116;
 
     private final Screen parent;
     private final RuleType type;
@@ -58,7 +63,7 @@ public final class RuleListScreen extends Screen {
     @Override
     protected void init() {
         // Ends above the Add button so the last rows and the scrollbar aren't covered.
-        RuleRows rows = addRenderableWidget(new RuleRows(minecraft, width, height - 36 - 60, 36));
+        RuleRows rows = addRenderableWidget(new RuleRows(minecraft, width, height - 36 - 60, 36, rowWidth()));
         for (int i = 0; i < rules.size(); i++) rows.add(i);
 
         int buttonY = height - 28;
@@ -90,6 +95,23 @@ public final class RuleListScreen extends Screen {
         }
         addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), b -> onClose())
                 .bounds(width / 2 + 154 - buttonWidth, buttonY, buttonWidth, 20).build());
+    }
+
+    /** Only as wide as the longest entry needs, so the buttons stay close to short ones; longer entries wrap at the maximum. */
+    private int rowWidth() {
+        int widest = 0;
+        for (String rule : rules) {
+            widest = Math.max(widest, font.width(summary(rule)));
+            if (type.validate(rule, ctx) != null) widest = Math.max(widest, font.width(rule));
+        }
+        return Math.min(Math.max(widest + BUTTONS_WIDTH, MIN_ROW_WIDTH), Math.min(MAX_ROW_WIDTH, width - 40));
+    }
+
+    private Component summary(String rule) {
+        String error = type.validate(rule, ctx);
+        if (error != null) return Component.translatable(ctx.uiKey("invalid"), Component.translatable(error));
+        Component description = type.describe(rule, ctx);
+        return description != null ? description : Component.literal(rule);
     }
 
     private void edit(String line, Consumer<String> onSave) {
@@ -131,8 +153,11 @@ public final class RuleListScreen extends Screen {
     }
 
     private final class RuleRows extends ContainerObjectSelectionList<RuleRows.Row> {
-        RuleRows(Minecraft minecraft, int width, int height, int y) {
+        private final int rowWidth;
+
+        RuleRows(Minecraft minecraft, int width, int height, int y, int rowWidth) {
             super(minecraft, width, height, y, 28);
+            this.rowWidth = rowWidth;
         }
 
         void add(int index) {
@@ -142,7 +167,7 @@ public final class RuleListScreen extends Screen {
 
         @Override
         public int getRowWidth() {
-            return Math.min(560, width - 40);
+            return rowWidth;
         }
 
         final class Row extends ContainerObjectSelectionList.Entry<Row> {
@@ -156,15 +181,11 @@ public final class RuleListScreen extends Screen {
 
             Row(int index) {
                 this.error = type.validate(rules.get(index), ctx);
-                Component description = type.describe(rules.get(index), ctx);
-                Component summary = error != null
-                        ? Component.translatable(ctx.uiKey("invalid"), Component.translatable(error))
-                        : description != null ? description : Component.literal(rules.get(index));
-                // Row padding (4), both buttons with their gap (104) and the gap before them (8).
-                int textWidth = getRowWidth() - 116;
-                this.summaryLines = font.split(summary, textWidth);
+                boolean described = type.describe(rules.get(index), ctx) != null;
+                int textWidth = getRowWidth() - BUTTONS_WIDTH;
+                this.summaryLines = font.split(summary(rules.get(index)), textWidth);
                 this.rawLines = error != null ? font.split(Component.literal(rules.get(index)), textWidth) : List.of();
-                this.rawTooltip = error == null && description != null ? font.split(Component.literal(rules.get(index)), 250) : List.of();
+                this.rawTooltip = error == null && described ? font.split(Component.literal(rules.get(index)), 250) : List.of();
                 this.editButton = Button.builder(Component.translatable(ctx.uiKey("edit")),
                         b -> edit(rules.get(index), line -> rules.set(index, line))).size(50, 20).build();
                 this.deleteButton = Button.builder(Component.translatable(ctx.uiKey("delete")), b -> {
@@ -189,7 +210,7 @@ public final class RuleListScreen extends Screen {
                 editButton.setPosition(deleteButton.getX() - 4 - editButton.getWidth(), buttonY);
                 editButton.extractRenderState(graphics, mouseX, mouseY, a);
                 deleteButton.extractRenderState(graphics, mouseX, mouseY, a);
-                int textY = getContentY() + 2;
+                int textY = getContentY() + (getContentHeight() - (summaryLines.size() + rawLines.size()) * LINE_HEIGHT) / 2 + 1;
                 for (FormattedCharSequence line : summaryLines) {
                     graphics.text(font, line, getContentX(), textY, error == null ? 0xFFFFFFFF : 0xFFFF5555);
                     textY += LINE_HEIGHT;
