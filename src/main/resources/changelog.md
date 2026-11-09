@@ -1,6 +1,6 @@
 # 1.21.1 - 1.2.1
 
-- Fixed Icons not existing for certain items.
+- Fixed Icons not existing for certain items in configs
 
 # 1.21.1 - 1.2.0
 

@@ -1,12 +1,13 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/thedragonlib",
   "promos": {
-    "1.21.1-latest": "1.2.0",
-    "1.21.1-recommended": "1.2.0"
+    "1.21.1-latest": "1.2.1",
+    "1.21.1-recommended": "1.2.1"
   },
   "1.21.1": {
     "1.0.0": "Ported to 1.21.1",
     "1.1.0": "Backported the config and api changes from 26.1.2",
-    "1.2.0": "Backported the rule editor changes from 26.1.2 (RuleFormat, RegistrySuggestionSource, new field kinds, Copy/Paste). Breaking: RuleSuggestionSource now takes a RuleType.Field"
+    "1.2.0": "Backported the rule editor changes from 26.1.2 (RuleFormat, RegistrySuggestionSource, new field kinds, Copy/Paste). Breaking: RuleSuggestionSource now takes a RuleType.Field",
+    "1.2.1": "Fixed Icons not existing for certain items in configs"
   }
 }
