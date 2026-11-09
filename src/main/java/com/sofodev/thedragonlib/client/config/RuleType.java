@@ -41,7 +41,7 @@ public record RuleType(String key, List<Field> fields, int minIndex, int maxInde
      * @param choices  the values of a {@code CHOICE} button, empty otherwise
      * @param inline   shares a row with the field before it in the editor, when there's room for that
      * @param fallback what an empty value stands for, shown in the empty input and in summaries, null if nothing
-     * @param icon     the sprite of a {@code TOGGLE} that's a small icon button without its own label, null if it isn't
+     * @param icon     the block atlas texture of a {@code TOGGLE} that's a small icon button without its own label, null if it isn't
      * @param rowLabel the {@code field.<name>} to label the row with instead of this field's own, null for its own
      */
     public record Field(String name, Kind kind, boolean wildcard, boolean optional, double min, double max, boolean percent,

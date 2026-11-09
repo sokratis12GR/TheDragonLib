@@ -13,10 +13,12 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -520,7 +522,8 @@ final class RuleEditScreen extends Screen {
             int x = getX() + 2;
             int y = getY() + 2;
             graphics.fill(x, y, x + 16, y + 16, values[index].equals("true") ? 0xFFD8D8D8 : 0xFF2B2B2B);
-            graphics.blitSprite(icon, x, y, 16, 16);
+            TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(icon);
+            graphics.blit(x, y, 0, 16, 16, sprite);
         }
     }
 
