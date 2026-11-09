@@ -1,5 +1,9 @@
 # 1.21.1 - 1.2.0
 
+- Fixed Icons not existing for certain items.
+
+# 1.21.1 - 1.2.0
+
 Brings the rule editor up to date with 26.1.2 - 1.4.1.
 
 ### Rule Editor
