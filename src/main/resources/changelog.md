@@ -1,4 +1,4 @@
-# 1.21.1 - 1.2.0
+# 1.21.1 - 1.2.1
 
 - Fixed Icons not existing for certain items.
 
