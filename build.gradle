@@ -119,7 +119,7 @@ modrinth {
 
     projectId = providers.gradleProperty('modrinth_project_id').orNull
 
-    versionNumber = mod_version.toString()
+    versionNumber = "${minecraft_version}-${mod_version}"
     versionName = releaseName
     versionType = 'release'
 
