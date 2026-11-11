@@ -8,16 +8,13 @@
 
 ## About
 
-TheDragonLib is a shared library mod for **NeoForge**, created and maintained by **[sokratis12GR | SoFoDev](https://sokratis.space)**. It has no content of its own — it's a utility and GUI toolkit used by (most of) SoFoDev's other mods, such as **[ArmorPlus](https://www.curseforge.com/minecraft/mc-mods/armorplus)**, **Sword-Displays** and **Mob-Settings**, to avoid reimplementing the same config boilerplate, GUI pickers and small utilities in every mod.
+TheDragonLib is a shared library mod for **NeoForge**, created and maintained by **[sokratis12GR | SoFoDev](https://sokratis.space)**. It has no content of its own — it's a utility and GUI toolkit used by (most of) SoFoDev's other mods, such as **[ArmorPlus](https://www.curseforge.com/minecraft/mc-mods/armorplus)** and **Sword-Displays**, to avoid reimplementing the same config boilerplate, GUI pickers and small utilities in every mod.
 
 ### Features
 
 - **Config helpers** — build and register a `ModConfigSpec` in one call instead of repeating NeoForge's builder/register boilerplate per mod.
 - **Config screen GUI widgets** — a searchable, category-filterable entry picker (`EntryPickerScreen`), a registry-backed candidate source for it (`RegistryCandidates`), a pick-or-type-manually list screen (`PickerListScreen`), and a heavier multi-field validated rule editor (`RuleType`/`RuleListScreen`/`RuleEditScreen`) for config lists that need more than a flat list of ids.
-- **Item and null-check utilities** (`CheckUtils`, `ItemStackUtils`) — common guard checks and `ItemStack` lookups.
 - **Client rendering helpers** (`PoseStackHelper`, `RenderingUtils`, `GLStateHelper`, `ClientUtills`) — `PoseStack` transforms and limb-swing animation math for block entity/model renderers.
-- **Mod compatibility** (`ModCompat`) — a one-line `isLoaded(modId)` check.
-- **Misc utilities** — Roman numeral formatting (`RomanNumeralUtil`), logging (`LogHelper`), text/array helpers (`TextHelper`, `ArrayUtils`), and more.
 
 ## For Players
 
@@ -57,7 +54,7 @@ And declare the dependency in `neoforge.mods.toml`:
 [[dependencies.yourmodid]]
     modId = "thedragonlib"
     type = "required"
-    versionRange = "[1.2.0,)"
+    versionRange = "[1.1.0,)"
     ordering = "NONE"
     side = "BOTH"
 ```
@@ -136,7 +133,7 @@ public class ItemPicker implements EntryPicker {
                 Component.literal("Category"), Component.literal("Search"), Component.literal("Select all"),
                 n -> Component.literal("Add " + n), id -> Component.literal("Already added"));
 
-        Minecraft.getInstance().setScreen(new EntryPickerScreen(Component.literal("Pick an item"),
+        Minecraft.getInstance().setScreenAndShow(new EntryPickerScreen(Component.literal("Pick an item"),
                 parent, candidates, categories, existing, false, labels, add));
     }
 }
@@ -158,27 +155,29 @@ RuleType myRule = new RuleType("myRule", List.of(
 
 RuleListContext ctx = new RuleListContext("mymod.ui.", "mymod.configuration.", mySuggestionSource);
 
-Minecraft.getInstance().setScreen(new RuleListScreen(parent, myRule, ctx, currentRules,
+Minecraft.getInstance().setScreenAndShow(new RuleListScreen(parent, myRule, ctx, currentRules,
         updatedRules -> myConfig.someList.set(updatedRules)));
 ```
 
-### Item/null checks
+The editor is a scrolling form, so any number of fields stays reachable. Fields can share a row, and an
+empty optional value can say what it stands for:
 
 ```java
-if (CheckUtils.isNotNullNorEmpty(someString) && CheckUtils.isNotEmpty(someStack)) {
-    // ...
-}
-
-ItemStack result = ItemStackUtils.getItemStack("minecraft", "diamond", 1);
+RuleType.picker("catalyst", RuleType.Kind.ITEM, false).asOptional(),
+RuleType.integer("count", 1, 64).asOptional().asInline().withFallback("1") // next to the catalyst, shows a grey 1 while empty
 ```
 
-### Checking if another mod is loaded
+Inline fields get their own row again on narrow screens. Number inputs and buttons are only as wide as
+their largest value, and pickers share what's left of the row. Toggles can be small icon buttons on a
+row with one label, using the `field.<name>` translation given to `withRowLabel`:
 
 ```java
-if (ModCompat.isLoaded("tconstruct")) {
-    // register Tinkers' Construct compat
-}
+RuleType.toggle("head").withIcon(InventoryMenu.EMPTY_ARMOR_SLOT_HELMET).withRowLabel("pieces"),
+RuleType.toggle("chest").withIcon(InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE).asInline()
 ```
+
+Your translations need the `ui` keys `copy`, `paste`, `copied` and `pasted` for the buttons that copy an
+entry as text and paste it back.
 
 ### Roman numerals
 
@@ -195,13 +194,6 @@ PoseStackHelper.rotateItem(poseStack, 0, rotationDegrees, 0);
 
 // Limb-swing animation math for a ModelPart:
 RenderingUtils.swing(rightArm, 1.0f, 1.0f, 0.0f, 0.0f, limbSwing, limbSwingAmount);
-```
-
-### Logging
-
-```java
-LogHelper.info("Loaded %d entries", entries.size());
-LogHelper.errorError("Failed to load %s", exception, fileName);
 ```
 
 ## Repository
