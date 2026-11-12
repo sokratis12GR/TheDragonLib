@@ -8,12 +8,12 @@
 
 ## About
 
-TheDragonLib is a shared library mod for **NeoForge**, created and maintained by **[sokratis12GR | SoFoDev](https://sokratis.space)**. It has no content of its own — it's a utility and GUI toolkit used by (most of) SoFoDev's other mods, such as **[ArmorPlus](https://www.curseforge.com/minecraft/mc-mods/armorplus)** and **Sword-Displays**, to avoid reimplementing the same config boilerplate, GUI pickers and small utilities in every mod.
+TheDragonLib is a shared library mod for **NeoForge**, created and maintained by **[sokratis12GR | SoFoDev](https://sokratis.space)**. It has no content of its own — it's a utility and GUI toolkit used by (most of) SoFoDev's other mods, such as **[ArmorPlus](https://www.curseforge.com/minecraft/mc-mods/armorplus)**, **[Sword-Displays](https://www.curseforge.com/minecraft/mc-mods/sword-displays)** and **[Mob-Settings](https://www.curseforge.com/minecraft/mc-mods/mob-settings/)**, to avoid reimplementing the same config boilerplate, GUI pickers and small utilities in every mod.
 
 ### Features
 
 - **Config helpers** — build and register a `ModConfigSpec` in one call instead of repeating NeoForge's builder/register boilerplate per mod.
-- **Config screen GUI widgets** — a searchable, category-filterable entry picker (`EntryPickerScreen`), a registry-backed candidate source for it (`RegistryCandidates`), a pick-or-type-manually list screen (`PickerListScreen`), and a heavier multi-field validated rule editor (`RuleType`/`RuleListScreen`/`RuleEditScreen`) for config lists that need more than a flat list of ids.
+- **Config screen GUI widgets** — a searchable, category-filterable entry picker (`EntryPickerScreen`), a registry-backed candidate source for it (`RegistryCandidates`), a pick-or-type-manually list screen (`PickerListScreen`), and a heavier multi-field validated rule editor (`RuleType`/`RuleListScreen`/`RuleEditScreen`) for config lists that need more than a flat list of ids, with copy/paste between lists, grouped rows and an unsaved-changes prompt.
 - **Client rendering helpers** (`PoseStackHelper`, `RenderingUtils`, `GLStateHelper`, `ClientUtills`) — `PoseStack` transforms and limb-swing animation math for block entity/model renderers.
 
 ## For Players
@@ -54,7 +54,7 @@ And declare the dependency in `neoforge.mods.toml`:
 [[dependencies.yourmodid]]
     modId = "thedragonlib"
     type = "required"
-    versionRange = "[1.4.0,)"
+    versionRange = "[1.5.0,)"
     ordering = "NONE"
     side = "BOTH"
 ```
@@ -176,8 +176,50 @@ RuleType.toggle("head").withIcon(InventoryMenu.EMPTY_ARMOR_SLOT_HELMET).withRowL
 RuleType.toggle("chest").withIcon(InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE).asInline()
 ```
 
+Toggles can also save values other than `true`/`false`. Made optional with the off value as its fallback,
+the value is left out of the line while it's off:
+
+```java
+RuleType.toggle("mode").withToggleValues("strict", "loose")
+```
+
+#### Copy, paste and grouping
+
+Copy all and Paste move lines between lists. Copied text starts with a `# <mod>:<key>` header, and Paste
+also accepts lines copied straight from the `.toml` file. With `withConversions`, lines copied from your
+other rule lists are converted field by field (matched by name). `withGrouping` collapses lines that share
+a value in one field into a single row that opens just those lines:
+
+```java
+new RuleListScreen(parent, myRule, ctx, currentRules, updatedRules -> myConfig.someList.set(updatedRules))
+        .withConversions(key -> myRuleTypesByKey.get(key)) // null for keys that aren't rule lists
+        .withGrouping(0, 3); // group by field 0 once a value has 3 or more lines
+```
+
+Leaving a rule list or the rule editor with changes asks to Save, Discard or Keep editing. Done still saves
+straight away.
+
+#### Extra data after an id (`FieldExtension`)
+
+For picker values that carry data after their id (e.g. `minecraft:diamond_sword[damage=5]` or
+`minecraft:zombie{IsBaby:1b}`), implement `FieldExtension` and pass it to `RuleListContext`. The field
+gets a button that opens your data editor. Suggestions, validation and names use only the id part:
+
+```java
+RuleListContext ctx = new RuleListContext("mymod.ui.", "mymod.configuration.", mySuggestionSource, myItemDataExtension);
+```
+
+#### Tags and whole mods (`RuleSuggestionSource.selectors`)
+
+Override `selectors(field)` in your `RuleSuggestionSource` to offer values that stand for several entries,
+like tags (`#minecraft:logs`) or a whole mod (`modid:*`). They're listed after `*` for fields that accept
+wildcards and rejected by fields that don't.
+
+#### Translations
+
 Your translations need the `ui` keys `copy`, `paste`, `copied` and `pasted` for the buttons that copy an
-entry as text and paste it back.
+entry as text and paste it back. The newer keys (`copyAll`, `pasteLines.*`, `copiedAll`, `group.*` and
+`unsaved.*`) have English fallbacks, so you only need to add them if you want to translate them.
 
 ### Roman numerals
 
