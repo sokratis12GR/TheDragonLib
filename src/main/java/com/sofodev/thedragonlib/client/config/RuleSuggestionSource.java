@@ -38,6 +38,19 @@ public interface RuleSuggestionSource {
 
     @Nullable Component help(RuleType.Field field, String id);
 
+    /**
+     * Options that stand for several entries at once, like tags ({@code #id}) or a whole mod ({@code modid:*}). Offered
+     * after {@code *} by fields that accept wildcards, and rejected by fields that don't.
+     */
+    default List<Option> selectors(RuleType.Field field) {
+        return List.of();
+    }
+
+    /** Whether the id is one of the {@link #selectors} kind of values, whether or not it's listed. */
+    default boolean isSelector(RuleType.Field field, String id) {
+        return false;
+    }
+
     /** Allowed {min, max} of an attribute id, or null if it's unknown or unbounded. Only used for {@code ATTRIBUTE}/{@code ATTRIBUTE_VALUE} kinds. */
     double @Nullable [] attributeRange(String attributeId);
 

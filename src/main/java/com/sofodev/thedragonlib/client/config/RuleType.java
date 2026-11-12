@@ -38,7 +38,8 @@ public record RuleType(String key, List<Field> fields, int minIndex, int maxInde
      * Decimal fields with {@code percent} set are entered as 0-1 but read better as 0-100%.
      *
      * @param source   what a {@code CUSTOM} picker lists, empty otherwise
-     * @param choices  the values of a {@code CHOICE} button, empty otherwise
+     * @param choices  the values of a {@code CHOICE} button; for a {@code TOGGLE}, its on and off values if it doesn't use
+     *                 {@code true}/{@code false} (see {@link #withToggleValues}), empty otherwise
      * @param inline   shares a row with the field before it in the editor, when there's room for that
      * @param fallback what an empty value stands for, shown in the empty input and in summaries, null if nothing
      * @param icon     the sprite of a {@code TOGGLE} that's a small icon button without its own label, null if it isn't
@@ -76,6 +77,31 @@ public record RuleType(String key, List<Field> fields, int minIndex, int maxInde
 
         public Field withRowLabel(String rowLabel) {
             return new Field(name, kind, wildcard, optional, min, max, percent, source, choices, inline, fallback, icon, rowLabel);
+        }
+
+        /**
+         * A {@code TOGGLE} that saves these values instead of {@code true}/{@code false} (matched ignoring case). Made optional
+         * with {@link #withFallback} set to the off value, it's left out of the line while off instead of saving that value.
+         */
+        public Field withToggleValues(String on, String off) {
+            return new Field(name, kind, wildcard, optional, min, max, percent, source, List.of(on, off), inline, fallback, icon, rowLabel);
+        }
+
+        public String toggleOn() {
+            return kind == Kind.TOGGLE && choices.size() == 2 ? choices.get(0) : "true";
+        }
+
+        public String toggleOff() {
+            return kind == Kind.TOGGLE && choices.size() == 2 ? choices.get(1) : "false";
+        }
+
+        public boolean isOn(String value) {
+            return value.equalsIgnoreCase(toggleOn());
+        }
+
+        /** An optional toggle whose fallback is its off value: off is stored by leaving the value out. */
+        public boolean offWhenEmpty() {
+            return kind == Kind.TOGGLE && optional && fallback != null && fallback.equalsIgnoreCase(toggleOff());
         }
     }
 
@@ -149,11 +175,19 @@ public record RuleType(String key, List<Field> fields, int minIndex, int maxInde
         String value = values[index];
         if (value.isEmpty()) return field.optional() || field.kind() == Kind.TOGGLE ? null : ctx.uiKey("error.required");
         if (field.kind() == Kind.TOGGLE) {
-            return value.equals("true") || value.equals("false") ? null : ctx.uiKey("error.unknownId");
+            return field.isOn(value) || value.equalsIgnoreCase(field.toggleOff()) ? null : ctx.uiKey("error.unknownId");
         }
         if (field.kind() == Kind.CHOICE) return field.choices().contains(value) ? null : ctx.uiKey("error.unknownId");
+        FieldExtension extension = ctx.extension(this, index);
+        if (extension != null) {
+            String dataError = extension.validateData(this, index, value);
+            if (dataError != null) return dataError;
+            value = extension.id(value);
+            if (value.isEmpty()) return field.optional() ? null : ctx.uiKey("error.required");
+        }
         if (field.isPicker()) {
             if (value.equals("*")) return field.wildcard() ? null : ctx.uiKey("error.noWildcard");
+            if (!field.wildcard() && ctx.suggestions().isSelector(field, value)) return ctx.uiKey("error.noWildcard");
             return ctx.suggestions().isKnown(field, value, values) ? null : ctx.uiKey("error.unknownId");
         }
         final double number;
@@ -181,7 +215,8 @@ public record RuleType(String key, List<Field> fields, int minIndex, int maxInde
             Field field = fields.get(i);
             if (field.optional() && !values[i].isEmpty()) hasOptional = true;
             String number = values[i].isEmpty() && field.fallback() != null ? field.fallback() : values[i];
-            args[i] = field.isPicker() ? ctx.suggestions().displayName(field, values[i])
+            FieldExtension extension = ctx.extension(this, i);
+            args[i] = field.isPicker() ? ctx.suggestions().displayName(field, extension != null ? extension.id(values[i]) : values[i])
                     : field.isButton() ? buttonLabel(field, values[i], ctx)
                     : field.percent() && !number.isEmpty() ? format(Double.parseDouble(number) * 100) + "%"
                     : number;
@@ -191,7 +226,7 @@ public record RuleType(String key, List<Field> fields, int minIndex, int maxInde
 
     /** What a {@code CHOICE} or {@code TOGGLE} value reads as; choices use {@code choice.<field>.<value>} if translated. */
     public static Component buttonLabel(Field field, String value, RuleListContext ctx) {
-        if (field.kind() == Kind.TOGGLE) return Component.translatable(value.equals("true") ? "options.on" : "options.off");
+        if (field.kind() == Kind.TOGGLE) return Component.translatable(field.isOn(value) ? "options.on" : "options.off");
         String translation = ctx.uiKey("choice." + field.name() + "." + (value.isEmpty() ? "none" : value));
         return I18n.exists(translation) ? Component.translatable(translation) : Component.literal(value);
     }
