@@ -8,6 +8,9 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.locale.Language;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.LinkedHashSet;
@@ -25,13 +28,18 @@ import java.util.function.Predicate;
  */
 public class EntryPickerScreen extends Screen {
 
-    private static final int ROW_HEIGHT = 22;
+    private static final int ROW_HEIGHT = 24;
     private static final int COLOR_WHITE = 0xFFFFFFFF;
     private static final int COLOR_GRAY = 0xFF909090;
     private static final int COLOR_SELECTED = 0xFF55FF55;
     private static final int COLOR_SELECTED_BG = 0x4055FF55;
 
-    public record Candidate(String id, ItemStack icon, Component name, Object entry) {
+    /** @param detail the grey line under the name; the id when null */
+    public record Candidate(String id, ItemStack icon, Component name, Object entry, @org.jetbrains.annotations.Nullable Component detail) {
+        public Candidate(String id, ItemStack icon, Component name, Object entry) {
+            this(id, icon, name, entry, null);
+        }
+
         public Candidate(String id, ItemStack icon, Component name) {
             this(id, icon, name, id);
         }
@@ -63,6 +71,7 @@ public class EntryPickerScreen extends Screen {
     private String query = "";
     private PickerList pickerList;
     private Button confirmButton;
+    private @org.jetbrains.annotations.Nullable Component emptyText;
 
     /**
      * @param categories the category filters; the first entry is used as the default (typically a catch-all)
@@ -81,6 +90,19 @@ public class EntryPickerScreen extends Screen {
         this.single = single;
         this.labels = labels;
         this.onConfirm = onConfirm;
+    }
+
+    /** Shown in place of the list when nothing matches, e.g. why there is nothing to pick. */
+    public EntryPickerScreen withEmptyText(@org.jetbrains.annotations.Nullable Component text) {
+        this.emptyText = text;
+        return this;
+    }
+
+    /** The text cut to {@code maxWidth} with an ellipsis, or as-is if it fits. */
+    private FormattedCharSequence fit(Component text, int maxWidth) {
+        if (font.width(text) <= maxWidth) return text.getVisualOrderText();
+        FormattedText cut = font.substrByWidth(text, maxWidth - font.width(CommonComponents.ELLIPSIS));
+        return Language.getInstance().getVisualOrder(FormattedText.composite(cut, CommonComponents.ELLIPSIS));
     }
 
     @Override
@@ -169,7 +191,16 @@ public class EntryPickerScreen extends Screen {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float a) {
         super.render(graphics, mouseX, mouseY, a);
-        graphics.drawCenteredString(font, title, width / 2, 8, COLOR_WHITE);
+        graphics.drawCenteredString(font, fit(title, width - 20), width / 2, 8, COLOR_WHITE);
+        if (font.width(title) > width - 20 && mouseY < 20) setTooltipForNextRenderPass(title);
+        if (emptyText != null && pickerList != null && pickerList.children().isEmpty()) {
+            List<FormattedCharSequence> lines = font.split(emptyText, Math.min(width - 40, 300));
+            int y = 50 + (height - 86) / 2 - lines.size() * 5;
+            for (FormattedCharSequence line : lines) {
+                graphics.drawCenteredString(font, line, width / 2, y, COLOR_GRAY);
+                y += 10;
+            }
+        }
         if (confirmButton != null) confirmButton.active = !selected.isEmpty();
     }
 
@@ -185,7 +216,7 @@ public class EntryPickerScreen extends Screen {
 
         @Override
         public int getRowWidth() {
-            return 300;
+            return Math.min(width - 50, 420);
         }
     }
 
@@ -213,13 +244,20 @@ public class EntryPickerScreen extends Screen {
             if (picked) {
                 graphics.fill(x, y, x + contentWidth, y + contentHeight, COLOR_SELECTED_BG);
             }
+            // Two text lines in a block, with the icon centred on it.
+            int textTop = y + (contentHeight - 19) / 2;
             if (!candidate.icon().isEmpty()) {
-                graphics.renderItem(candidate.icon(), x + 2, y + (contentHeight - 16) / 2);
+                graphics.renderItem(candidate.icon(), x + 2, textTop + 1);
             }
             int textX = x + 22;
-            graphics.drawString(font, candidate.name(), textX, y + 1, added ? COLOR_GRAY : picked ? COLOR_SELECTED : COLOR_WHITE);
-            Component sub = added ? labels.alreadyAdded().apply(candidate.id()) : Component.literal(candidate.id());
-            graphics.drawString(font, sub, textX, y + 11, COLOR_GRAY);
+            int textWidth = x + contentWidth - 2 - textX;
+            Component sub = added ? labels.alreadyAdded().apply(candidate.id())
+                    : candidate.detail() != null ? candidate.detail() : Component.literal(candidate.id());
+            graphics.drawString(font, fit(candidate.name(), textWidth), textX, textTop, added ? COLOR_GRAY : picked ? COLOR_SELECTED : COLOR_WHITE);
+            graphics.drawString(font, fit(sub, textWidth), textX, textTop + 10, COLOR_GRAY);
+            if (hovered && (font.width(candidate.name()) > textWidth || font.width(sub) > textWidth)) {
+                setTooltipForNextRenderPass(List.of(candidate.name().getVisualOrderText(), sub.getVisualOrderText()));
+            }
         }
 
         @Override

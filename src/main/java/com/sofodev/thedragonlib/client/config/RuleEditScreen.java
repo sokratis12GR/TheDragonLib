@@ -22,7 +22,6 @@ import net.minecraft.world.inventory.InventoryMenu;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -45,6 +44,8 @@ final class RuleEditScreen extends Screen {
     /** Between one field's input and the next field's label. */
     private static final int FIELD_GAP = 12;
     private static final int ICON_SIZE = 20;
+    /** The button that opens a {@link FieldExtension}'s data editor. */
+    private static final int DATA_BUTTON_WIDTH = 40;
     /** Keeps the inputs of one and two digit numbers the same size, so the rows below each other line up. */
     private static final int MIN_NUMBER_WIDTH = 26;
     /** The input padding and the cursor. */
@@ -72,9 +73,18 @@ final class RuleEditScreen extends Screen {
     private @Nullable Button copyButton;
     private @Nullable String error;
     private @Nullable Component notice;
+    private final @Nullable RuleConversions conversions;
+    /** The line as it was opened, to tell whether leaving needs asking. */
+    private final String original;
 
     RuleEditScreen(Screen parent, RuleType type, RuleListContext ctx, String line, Consumer<String> onSave) {
-        super(Component.translatable(ctx.uiKey("editTitle"), Component.translatable(ctx.configKey(type.key()))));
+        this(parent, type, ctx, line, Component.translatable(ctx.uiKey("editTitle"), Component.translatable(ctx.configKey(type.key()))), null, onSave);
+    }
+
+    RuleEditScreen(Screen parent, RuleType type, RuleListContext ctx, String line, Component title,
+                   @Nullable RuleConversions conversions, Consumer<String> onSave) {
+        super(title);
+        this.conversions = conversions;
         this.parent = parent;
         this.type = type;
         this.ctx = ctx;
@@ -82,13 +92,14 @@ final class RuleEditScreen extends Screen {
         this.boxes = new EditBox[values.length];
         this.rowOfField = new Rows.Row[values.length];
         this.onSave = onSave;
+        this.original = type.join(values);
     }
 
     private String[] withButtonDefaults(String[] loaded) {
         for (int i = 0; i < loaded.length; i++) {
             RuleType.Field field = type.fields().get(i);
             if (loaded[i].isEmpty() && field.kind() == RuleType.Kind.CHOICE && !field.optional()) loaded[i] = field.choices().getFirst();
-            if (loaded[i].isEmpty() && field.kind() == RuleType.Kind.TOGGLE) loaded[i] = "false";
+            if (loaded[i].isEmpty() && field.kind() == RuleType.Kind.TOGGLE && !field.offWhenEmpty()) loaded[i] = field.toggleOff();
         }
         return loaded;
     }
@@ -107,9 +118,9 @@ final class RuleEditScreen extends Screen {
 
         int buttonWidth = Math.min(100, (width - 32) / 4);
         int buttonX = (width - buttonWidth * 4 - 12) / 2;
-        copyButton = addRenderableWidget(Button.builder(Component.translatable(ctx.uiKey("copy")), b -> copy())
+        copyButton = addRenderableWidget(Button.builder(RuleListScreen.copyLabel(Component.translatable(ctx.uiKey("copy"))), b -> copy())
                 .bounds(buttonX, height - 28, buttonWidth, 20).build());
-        addRenderableWidget(Button.builder(Component.translatable(ctx.uiKey("paste")), b -> paste())
+        addRenderableWidget(Button.builder(Component.translatable(ctx.uiKey("paste")).copy().withStyle(ChatFormatting.GREEN), b -> paste())
                 .bounds(buttonX + buttonWidth + 4, height - 28, buttonWidth, 20).build());
         saveButton = addRenderableWidget(Button.builder(Component.translatable(ctx.uiKey("save")), b -> save())
                 .bounds(buttonX + (buttonWidth + 4) * 2, height - 28, buttonWidth, 20).build());
@@ -119,7 +130,7 @@ final class RuleEditScreen extends Screen {
         int first = activeField >= 0 ? activeField : nextBox(0);
         activeField = -1;
         if (first >= 0) {
-            setActiveField(type.fields().get(first).isPicker() ? first : -1);
+            setActiveField(first);
             focusBox(first);
         }
         revalidate();
@@ -150,7 +161,18 @@ final class RuleEditScreen extends Screen {
             for (int i = 0; i < group.size(); i++) {
                 int index = group.get(i);
                 int widgetWidth = widgetWidths[i] > 0 ? widgetWidths[i] : room / flexible;
-                cells.add(new Rows.Cell(index, labelWidths[i], i + 1 < group.size() ? gapBefore(type.fields().get(group.get(i + 1))) : 0, createWidget(index, widgetWidth)));
+                int gapAfter = i + 1 < group.size() ? gapBefore(type.fields().get(group.get(i + 1))) : 0;
+                FieldExtension extension = ctx.extension(type, index);
+                if (extension == null || type.fields().get(index).isButton()) {
+                    cells.add(new Rows.Cell(index, labelWidths[i], gapAfter, createWidget(index, widgetWidth), false));
+                    continue;
+                }
+                // The data button shares the input's room, right after it.
+                cells.add(new Rows.Cell(index, labelWidths[i], GAP, createWidget(index, widgetWidth - DATA_BUTTON_WIDTH - GAP), false));
+                Button data = Button.builder(extension.buttonLabel(type, index), b -> openData(extension, index))
+                        .size(DATA_BUTTON_WIDTH, 20)
+                        .tooltip(Tooltip.create(extension.buttonTooltip(type, index))).build();
+                cells.add(new Rows.Cell(index, 0, gapAfter, data, true));
             }
             Rows.Row row = list.addRow(cells);
             for (int index : group) rowOfField[index] = row;
@@ -165,7 +187,7 @@ final class RuleEditScreen extends Screen {
     private int fittedWidth(RuleType.Field field) {
         if (field.icon() != null) return ICON_SIZE;
         if (field.isButton()) {
-            List<String> labels = new ArrayList<>(field.kind() == RuleType.Kind.TOGGLE ? List.of("true", "false") : field.choices());
+            List<String> labels = new ArrayList<>(field.kind() == RuleType.Kind.TOGGLE ? List.of(field.toggleOn(), field.toggleOff()) : field.choices());
             if (field.optional()) labels.add("");
             int widest = 0;
             for (String value : labels) widest = Math.max(widest, font.width(RuleType.buttonLabel(field, value, ctx)));
@@ -204,7 +226,8 @@ final class RuleEditScreen extends Screen {
                     .tooltip(Tooltip.create(tooltip(index))).build();
         }
         EditBox box = new EditBox(font, 0, 0, widgetWidth, 20, fieldLabel(field));
-        box.setMaxLength(256);
+        FieldExtension extension = ctx.extension(type, index);
+        box.setMaxLength(extension != null ? extension.maxLength() : 256);
         box.setValue(values[index]);
         box.setHint(hint(field, widgetWidth));
         box.setTooltip(Tooltip.create(tooltip(index)));
@@ -216,6 +239,18 @@ final class RuleEditScreen extends Screen {
         });
         boxes[index] = box;
         return box;
+    }
+
+    /** Opens the field's data editor; coming back rebuilds this screen from the values. */
+    private void openData(FieldExtension extension, int index) {
+        activeField = index;
+        extension.open(this, type, index, values[index], value -> values[index] = value);
+    }
+
+    /** The part of a value suggestions and names work with: its id, without any data after it. */
+    private String idPart(int index) {
+        FieldExtension extension = ctx.extension(type, index);
+        return extension != null ? extension.id(values[index]) : values[index];
     }
 
     /** Focuses the box in its row, scrolling to it if needed. */
@@ -233,7 +268,7 @@ final class RuleEditScreen extends Screen {
     private void cycle(int index, Button button) {
         RuleType.Field field = type.fields().get(index);
         if (field.kind() == RuleType.Kind.TOGGLE) {
-            values[index] = values[index].equals("true") ? "false" : "true";
+            values[index] = !field.isOn(values[index]) ? field.toggleOn() : field.offWhenEmpty() ? "" : field.toggleOff();
         } else {
             List<String> choices = new ArrayList<>(field.choices());
             if (field.optional()) choices.add("");
@@ -255,7 +290,7 @@ final class RuleEditScreen extends Screen {
 
     /** An icon doesn't show its state as text, so it's only read out by narration. */
     private Component iconMessage(RuleType.Field field, String value) {
-        return CommonComponents.optionStatus(fieldLabel(field), value.equals("true"));
+        return CommonComponents.optionStatus(fieldLabel(field), field.isOn(value));
     }
 
     /** Per-rule-type help when one exists for this field, otherwise the shared help for that field. */
@@ -296,7 +331,7 @@ final class RuleEditScreen extends Screen {
     /** The name of what a picker's ID stands for, at the end of its input; left out if it doesn't fit next to the ID. */
     private void renderPickedName(GuiGraphics graphics, int index, AbstractWidget box, int y) {
         RuleType.Field field = type.fields().get(index);
-        String value = values[index];
+        String value = idPart(index);
         if (!field.isPicker() || value.isEmpty() || type.validateField(index, values, ctx) != null) return;
         String name = ctx.suggestions().displayName(field, value);
         int nameWidth = font.width(name);
@@ -324,10 +359,15 @@ final class RuleEditScreen extends Screen {
             return;
         }
         RuleType.Field field = type.fields().get(activeField);
-        String query = values[activeField].toLowerCase(Locale.ROOT);
+        String query = idPart(activeField).toLowerCase(Locale.ROOT);
         List<RuleSuggestionSource.Option> matches = new ArrayList<>();
         if (field.wildcard() && "*".contains(query)) {
             matches.add(new RuleSuggestionSource.Option("*", ctx.suggestions().anyLabel(field).getString()));
+        }
+        if (field.wildcard()) {
+            for (RuleSuggestionSource.Option option : ctx.suggestions().selectors(field)) {
+                if (option.matches(query)) matches.add(option);
+            }
         }
         for (RuleSuggestionSource.Option option : ctx.suggestions().options(field, values)) {
             if (option.matches(query)) matches.add(option);
@@ -337,10 +377,13 @@ final class RuleEditScreen extends Screen {
 
     private void pick(RuleSuggestionSource.Option option) {
         if (activeField < 0) return;
-        boxes[activeField].setValue(option.id());
+        FieldExtension extension = ctx.extension(type, activeField);
+        // Picking another id keeps the field's data.
+        boxes[activeField].setValue(extension != null ? extension.withId(values[activeField], option.id()) : option.id());
         int next = nextBox(activeField + 1);
         pendingFocus = next >= 0 ? next : activeField;
-        if (next >= 0 && type.fields().get(next).isPicker()) setActiveField(next);
+        // Whatever the next field is, so the list and the highlighted label don't stay on the field that was just picked.
+        if (next >= 0) setActiveField(next);
     }
 
     private void revalidate() {
@@ -362,12 +405,20 @@ final class RuleEditScreen extends Screen {
 
     private void copy() {
         if (error != null) return;
-        minecraft.keyboardHandler.setClipboard(type.join(values));
+        minecraft.keyboardHandler.setClipboard(RuleClipboard.write(ctx, type, List.of(type.join(values))));
         notice = Component.translatable(ctx.uiKey("copied"));
     }
 
     private void paste() {
-        String line = minecraft.keyboardHandler.getClipboard().trim();
+        RuleClipboard.Parsed parsed = RuleClipboard.parse(ctx, minecraft.keyboardHandler.getClipboard());
+        if (parsed.lines().isEmpty()) {
+            notice = Component.translatableWithFallback(ctx.uiKey("pasteLines.empty"), "The clipboard has no lines to paste.").withStyle(ChatFormatting.RED);
+            return;
+        }
+        String line = parsed.lines().getFirst();
+        RuleType from = parsed.sourceKey() != null && !parsed.sourceKey().equals(type.key()) && conversions != null
+                ? conversions.type(parsed.sourceKey()) : null;
+        if (from != null) line = RuleClipboard.convert(line, from, type, conversions);
         String problem = type.validate(line, ctx);
         if (problem != null) {
             notice = Component.translatable(ctx.uiKey("invalid"), Component.translatable(problem)).withStyle(ChatFormatting.RED);
@@ -385,9 +436,15 @@ final class RuleEditScreen extends Screen {
         minecraft.setScreen(parent);
     }
 
+    /** Esc and Cancel ask first when the line was changed. */
     @Override
     public void onClose() {
-        minecraft.setScreen(parent);
+        if (type.join(values).equals(original)) {
+            minecraft.setScreen(parent);
+            return;
+        }
+        minecraft.setScreen(new UnsavedChangesScreen(this, ctx, this::save, () -> minecraft.setScreen(parent),
+                error != null ? Component.literal(error) : null));
     }
 
     @Override
@@ -396,19 +453,20 @@ final class RuleEditScreen extends Screen {
             focusBox(pendingFocus);
             pendingFocus = -1;
         }
-        // The suggestion list takes focus when clicked, so only switch fields when another box is focused.
-        if (rows != null && getFocused() == rows && rows.getFocused() != null && rows.getFocused().getFocused() instanceof EditBox focused) {
-            int index = Arrays.asList(boxes).indexOf(focused);
-            if (index >= 0 && type.fields().get(index).isPicker()) setActiveField(index);
+        // The suggestion list takes focus when clicked, so only follow focus while it's in the form. Any field counts, so a
+        // number, toggle or data button clears the list instead of leaving the previous picker's matches up.
+        if (rows != null && getFocused() == rows && rows.getFocused() != null) {
+            int index = rows.getFocused().fieldOf(rows.getFocused().getFocused());
+            if (index >= 0) setActiveField(index);
         }
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float a) {
         super.render(graphics, mouseX, mouseY, a);
-        graphics.drawCenteredString(font, title, width / 2, 10, 0xFFFFFFFF);
+        RuleListScreen.title(this, graphics, font, title, !type.join(values).equals(original), width, mouseX, mouseY);
         RuleListScreen.subtitle(this, graphics, font, Component.translatable(ctx.configKey(type.key() + ".tooltip")), width, 22, mouseX, mouseY);
-        Component header = activeField >= 0
+        Component header = activeField >= 0 && type.fields().get(activeField).isPicker()
                 ? Component.translatable(ctx.uiKey("matches"), fieldLabel(type.fields().get(activeField)))
                 : Component.translatable(ctx.uiKey("pickHint"));
         if (suggestions != null) graphics.drawString(font, font.plainSubstrByWidth(header.getString(), suggestions.getWidth()), suggestions.getX(), 38, 0xFFA0A0A0);
@@ -450,8 +508,11 @@ final class RuleEditScreen extends Screen {
             return width - SCROLLBAR_WIDTH * 2 - 4;
         }
 
-        /** @param gapAfter the space before the next field of the row */
-        record Cell(int field, int labelWidth, int gapAfter, AbstractWidget widget) {
+        /**
+         * @param gapAfter the space before the next field of the row
+         * @param extra    a button that belongs to the field before it rather than a field of its own
+         */
+        record Cell(int field, int labelWidth, int gapAfter, AbstractWidget widget, boolean extra) {
         }
 
         final class Row extends ContainerObjectSelectionList.Entry<Row> {
@@ -463,12 +524,38 @@ final class RuleEditScreen extends Screen {
                 for (Cell cell : cells) widgets.add(cell.widget());
             }
 
+            /**
+             * Vanilla only tells the row it lost focus, not the box inside it, which would keep drawing its cursor.
+             * Passed on here so only the box being typed in shows one.
+             */
+            @Override
+            public void setFocused(boolean focused) {
+                if (!focused && getFocused() != null) {
+                    getFocused().setFocused(false);
+                    setFocused(null);
+                }
+            }
+
+            /** The field a widget of this row belongs to, or -1. */
+            int fieldOf(@Nullable GuiEventListener widget) {
+                for (Cell cell : cells) {
+                    if (cell.widget() == widget) return cell.field();
+                }
+                return -1;
+            }
+
             @Override
             public void render(GuiGraphics graphics, int rowIndex, int top, int left, int width, int height,
                                int mouseX, int mouseY, boolean hovered, float a) {
                 int y = top + 2;
                 int x = left + 2;
                 for (Cell cell : cells) {
+                    if (cell.extra()) {
+                        cell.widget().setPosition(x, y);
+                        cell.widget().render(graphics, mouseX, mouseY, a);
+                        x += cell.widget().getWidth() + cell.gapAfter();
+                        continue;
+                    }
                     int index = cell.field();
                     RuleType.Field field = type.fields().get(index);
                     // An error names the field by its label, which isn't unique on its own.
@@ -521,7 +608,7 @@ final class RuleEditScreen extends Screen {
             graphics.blitSprite(SPRITES.get(active, isHoveredOrFocused()), getX(), getY(), getWidth(), getHeight());
             int x = getX() + 2;
             int y = getY() + 2;
-            graphics.fill(x, y, x + 16, y + 16, values[index].equals("true") ? 0xFFD8D8D8 : 0xFF2B2B2B);
+            graphics.fill(x, y, x + 16, y + 16, type.fields().get(index).isOn(values[index]) ? 0xFFD8D8D8 : 0xFF2B2B2B);
             TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(icon);
             graphics.blit(x, y, 0, 16, 16, sprite);
         }
